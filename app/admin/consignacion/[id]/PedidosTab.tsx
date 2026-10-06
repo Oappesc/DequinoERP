@@ -130,12 +130,15 @@ export default function PedidosTab({
   const totalUSD = cart.reduce((acc, c) => acc + (c.cantidad * c.precio), 0);
 
   return (
-    <div className="bg-white rounded-b-2xl border-x border-b border-slate-200 overflow-hidden">
+    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 overflow-hidden space-y-6">
       
       {/* HEADER TABS ACCIONES */}
-      <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-        <h3 className="font-semibold text-slate-700">Historial de Pedidos</h3>
-        <button onClick={() => setShowModal(true)} className="bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-colors text-sm">
+      <div className="flex justify-between items-center pb-2">
+        <h3 className="text-base font-extrabold text-slate-800 tracking-tight">Historial de Pedidos</h3>
+        <button 
+          onClick={() => setShowModal(true)} 
+          className="bg-dequino-primary hover:bg-[#6C8264] text-white font-medium py-2.5 px-5 rounded-2xl flex items-center gap-2 shadow-sm text-xs transition-all"
+        >
           <Plus className="w-4 h-4" /> Cargar Pedido
         </button>
       </div>
@@ -143,35 +146,39 @@ export default function PedidosTab({
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-white border-b border-slate-200 text-slate-500 text-sm">
-              <th className="p-4 font-semibold">Código</th>
-              <th className="p-4 font-semibold">Fecha</th>
-              <th className="p-4 font-semibold text-center">Estatus</th>
-              <th className="p-4 font-semibold text-right">Total</th>
-              <th className="p-4 font-semibold text-center">Acciones</th>
+            <tr className="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+              <th className="pb-3 pr-4 font-extrabold">Código</th>
+              <th className="pb-3 px-4 font-extrabold">Fecha</th>
+              <th className="pb-3 px-4 font-extrabold text-center">Estatus</th>
+              <th className="pb-3 px-4 font-extrabold text-right">Total</th>
+              <th className="pb-3 pl-4 font-extrabold text-center">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-100/70 text-sm">
             {pedidos.length === 0 ? (
-              <tr><td colSpan={5} className="p-12 text-center text-slate-500">No hay pedidos registrados.</td></tr>
+              <tr><td colSpan={5} className="py-12 text-center text-xs text-slate-400 font-medium">No hay pedidos registrados.</td></tr>
             ) : pedidos.map(p => (
-              <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
-                <td className="p-4 font-bold text-slate-700">{p.codigo}</td>
-                <td className="p-4 text-slate-600">{new Date(p.created_at).toLocaleString()}</td>
-                <td className="p-4 text-center">
-                  <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${
-                    p.estado === 'abierto' ? 'bg-amber-100 text-amber-700' : 
-                    p.estado === 'cerrado' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+              <tr key={p.id} className="hover:bg-[#FAF8F5] transition-colors">
+                <td className="py-3.5 pr-4 font-mono font-bold text-slate-800 text-xs">{p.codigo}</td>
+                <td className="py-3.5 px-4 text-slate-600 text-xs">{new Date(p.created_at).toLocaleString()}</td>
+                <td className="py-3.5 px-4 text-center">
+                  <span className={`inline-block font-bold text-[10px] px-2.5 py-0.5 rounded-full border ${
+                    p.estado === 'abierto' 
+                      ? 'bg-amber-50 text-amber-700 border-amber-200' 
+                      : p.estado === 'cerrado' 
+                        ? 'bg-[#EEF3EC] text-dequino-secondary border-dequino-tertiary/60' 
+                        : 'bg-slate-100 text-slate-600 border-slate-200'
                   }`}>
                     {p.estado.toUpperCase()}
                   </span>
                 </td>
-                <td className="p-4 text-right font-bold text-slate-800">
+                <td className="py-3.5 px-4 text-right font-extrabold text-slate-800">
                   {formatCurrency(p.total_usd)}
                 </td>
-                <td className="p-4 text-center">
-                  {/* For now just a placeholder for actions like view detail */}
-                  <button className="text-violet-600 hover:text-violet-800 p-2"><FileText className="w-4 h-4"/></button>
+                <td className="py-3.5 pl-4 text-center">
+                  <button className="text-dequino-primary hover:text-dequino-secondary hover:bg-[#EEF3EC] p-2 rounded-xl transition-colors">
+                    <FileText className="w-4 h-4"/>
+                  </button>
                 </td>
               </tr>
             ))}
@@ -182,55 +189,63 @@ export default function PedidosTab({
       {/* MODAL CREAR PEDIDO */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-50 rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="bg-white rounded-3xl shadow-xl border border-slate-100 w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
             
-            <div className="p-4 bg-white border-b border-slate-200 flex items-center justify-between shrink-0">
-              <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <ClipboardList className="w-6 h-6 text-violet-600" /> Nuevo Pedido de Consignación
+            <div className="p-6 bg-[#FAF8F5] border-b border-slate-100 flex items-center justify-between shrink-0">
+              <h3 className="text-dequino-secondary text-lg font-bold flex items-center gap-2">
+                <ClipboardList className="w-5 h-5 text-dequino-primary" /> Nuevo Pedido de Consignación
               </h3>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600">✕</button>
+              <button 
+                onClick={() => setShowModal(false)} 
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-200/60 transition-colors"
+              >
+                ✕
+              </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
               
               {/* IZQUIERDA: Herramientas de Carga */}
-              <div className="md:col-span-1 space-y-6">
+              <div className="md:col-span-1 space-y-5">
                 
                 {/* Parseador PDF */}
-                <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
-                  <h4 className="font-semibold text-slate-700 text-sm">Carga Inteligente por PDF</h4>
-                  <p className="text-xs text-slate-500">Sube una nota de entrega o factura en PDF. El sistema extraerá los códigos PT automáticamente.</p>
+                <div className="border-2 border-dashed border-dequino-tertiary/80 hover:border-dequino-primary bg-[#FAF8F5] rounded-2xl p-5 text-center transition-all space-y-2">
+                  <h4 className="font-bold text-dequino-secondary text-xs uppercase tracking-wider">Carga Inteligente por PDF</h4>
+                  <p className="text-xs text-slate-500 leading-relaxed">Sube una nota de entrega o factura en PDF. El sistema extraerá los códigos PT automáticamente.</p>
                   
                   <input type="file" accept="application/pdf" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
                   
                   <button 
                     onClick={() => fileInputRef.current?.click()}
                     disabled={loadingPdf}
-                    className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-violet-300 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-xl p-4 font-medium transition-colors disabled:opacity-50"
+                    className="bg-white hover:bg-slate-50 text-dequino-secondary border border-dequino-tertiary font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 mx-auto mt-3 shadow-sm transition-all disabled:opacity-50"
                   >
-                    {loadingPdf ? <span className="animate-pulse">Procesando...</span> : <><Upload className="w-5 h-5" /> Subir Archivo PDF</>}
+                    {loadingPdf ? <span className="animate-pulse">Procesando...</span> : <><Upload className="w-4 h-4 text-dequino-primary" /> Subir Archivo PDF</>}
                   </button>
 
-                  {pdfText && <p className="text-xs text-emerald-600 font-medium flex items-center gap-1"><CheckCircle className="w-3 h-3"/> {pdfText}</p>}
+                  {pdfText && <p className="text-xs text-emerald-700 font-bold flex items-center justify-center gap-1 mt-2"><CheckCircle className="w-3.5 h-3.5"/> {pdfText}</p>}
                 </div>
 
                 {/* Búsqueda Manual */}
-                <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
-                  <h4 className="font-semibold text-slate-700 text-sm">Agregar Producto Manual</h4>
+                <div className="bg-[#FAF8F5]/60 p-4 rounded-2xl border border-slate-100 space-y-3">
+                  <h4 className="font-bold text-slate-600 text-xs uppercase tracking-wider">Agregar Producto Manual</h4>
                   <input 
                     type="text" 
                     placeholder="Buscar producto por nombre o PT..." 
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-violet-500"
+                    className="w-full rounded-2xl border border-slate-200 bg-[#FCFCFA] px-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-dequino-primary focus:ring-2 focus:ring-dequino-primary/20 transition-all"
                   />
                   {searchTerm.length > 1 && (
                     <div className="space-y-1 mt-2">
                       {filteredSearch.map(p => (
-                        <div key={p.id} className="flex items-center justify-between p-2 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-100 text-xs">
-                          <span className="font-medium text-slate-700 truncate mr-2">{formatProductName(p)}</span>
-                          <button onClick={() => handleAddManual(p)} className="p-1 bg-violet-100 text-violet-700 rounded-md hover:bg-violet-200">
-                            <Plus className="w-3 h-3" />
+                        <div key={p.id} className="flex items-center justify-between p-2.5 bg-white hover:bg-slate-50 rounded-xl border border-slate-100 text-xs transition-colors">
+                          <span className="font-semibold text-slate-700 truncate mr-2">{formatProductName(p)}</span>
+                          <button 
+                            onClick={() => handleAddManual(p)} 
+                            className="p-1.5 bg-[#EEF3EC] text-dequino-secondary hover:bg-dequino-tertiary/60 rounded-lg transition-colors"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       ))}
@@ -241,32 +256,32 @@ export default function PedidosTab({
               </div>
 
               {/* DERECHA: Carrito de Consignación */}
-              <div className="md:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-full overflow-hidden">
-                <div className="p-3 bg-slate-50 border-b border-slate-200 text-sm font-semibold text-slate-600">
+              <div className="md:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full overflow-hidden">
+                <div className="p-4 bg-[#FAF8F5] border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Pre-visualización del Pedido
                 </div>
                 
-                <div className="flex-1 overflow-y-auto p-0">
+                <div className="flex-1 overflow-y-auto p-0 min-h-[220px]">
                   {cart.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full p-8 text-slate-400">
-                      <ClipboardList className="w-12 h-12 mb-2 opacity-50" />
-                      <p>Agrega productos manual o sube un PDF</p>
+                      <ClipboardList className="w-12 h-12 mb-2 text-slate-300 stroke-1" />
+                      <p className="text-xs font-medium text-slate-400">Agrega productos manual o sube un PDF</p>
                     </div>
                   ) : (
-                    <table className="w-full text-left text-sm">
-                      <thead className="bg-slate-50/50 sticky top-0">
-                        <tr className="text-slate-500 border-b border-slate-100">
-                          <th className="p-3 font-medium">Producto</th>
-                          <th className="p-3 font-medium text-right w-24">Cant.</th>
-                          <th className="p-3 font-medium text-right w-28">Precio</th>
-                          <th className="p-3 font-medium text-center w-12"></th>
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-[#FAF8F5]/60 sticky top-0">
+                        <tr className="text-slate-400 border-b border-slate-100 uppercase text-[10px] font-bold">
+                          <th className="p-3">Producto</th>
+                          <th className="p-3 text-right w-24">Cant.</th>
+                          <th className="p-3 text-right w-28">Precio</th>
+                          <th className="p-3 text-center w-12"></th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-50">
+                      <tbody className="divide-y divide-slate-100/70">
                         {cart.map(c => (
-                          <tr key={c.producto_id} className="hover:bg-slate-50/50">
+                          <tr key={c.producto_id} className="hover:bg-[#FAF8F5]/40 transition-colors">
                             <td className="p-3">
-                              <div className="font-bold text-slate-800">{c.producto.codigo}</div>
+                              <div className="font-bold text-slate-800 font-mono">{c.producto.codigo}</div>
                               <div className="text-slate-500 truncate max-w-[200px]">{formatProductName(c.producto)}</div>
                             </td>
                             <td className="p-3 text-right">
@@ -275,14 +290,14 @@ export default function PedidosTab({
                                 min="1"
                                 value={c.cantidad}
                                 onChange={(e) => handleQtyChange(c.producto_id, parseInt(e.target.value) || 1)}
-                                className="w-16 border border-slate-200 rounded-lg px-2 py-1 text-center outline-none focus:border-violet-500"
+                                className="w-16 rounded-xl border border-slate-200 bg-[#FCFCFA] px-2 py-1 text-center font-bold text-slate-800 outline-none focus:border-dequino-primary"
                               />
                             </td>
-                            <td className="p-3 text-right font-medium text-slate-700">
+                            <td className="p-3 text-right font-extrabold text-slate-800">
                               {formatCurrency(c.precio * c.cantidad)}
                             </td>
                             <td className="p-3 text-center">
-                              <button onClick={() => handleRemove(c.producto_id)} className="text-rose-400 hover:text-rose-600 p-1">
+                              <button onClick={() => handleRemove(c.producto_id)} className="text-slate-400 hover:text-rose-600 p-1 transition-colors">
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </td>
@@ -293,15 +308,15 @@ export default function PedidosTab({
                   )}
                 </div>
 
-                <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
+                <div className="p-5 bg-[#FAF8F5] border-t border-slate-100 flex items-center justify-between shrink-0">
                   <div>
-                    <p className="text-sm text-slate-500">Total Pedido</p>
-                    <p className="text-xl font-black text-slate-800">{formatCurrency(totalUSD)}</p>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pedido</p>
+                    <p className="text-2xl font-extrabold text-dequino-secondary">{formatCurrency(totalUSD)}</p>
                   </div>
                   <button 
                     onClick={handleSave} 
                     disabled={saving || cart.length === 0}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
+                    className="bg-dequino-primary hover:bg-[#6C8264] text-white font-bold py-3 px-6 rounded-2xl flex items-center gap-2 text-xs shadow-md shadow-dequino-primary/20 transition-all disabled:opacity-50"
                   >
                     <Save className="w-4 h-4" /> {saving ? 'Guardando...' : 'Confirmar Pedido'}
                   </button>

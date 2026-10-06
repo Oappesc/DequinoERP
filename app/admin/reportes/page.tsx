@@ -42,33 +42,40 @@ function ReportesContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-6 pb-20">
+    <div className="min-h-screen bg-dequino-neutral p-4 md:p-6 pb-20 font-sans font-lato animate-in fade-in duration-500">
       <div className="mx-auto max-w-7xl space-y-6">
-        <header className="flex flex-col md:flex-row justify-between md:items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+        
+        {/* Banner Superior */}
+        <header className="bg-dequino-secondary text-white rounded-3xl p-6 shadow-sm flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="p-2 hover:bg-slate-100 rounded-lg text-slate-500">
+            <Link href="/admin" className="p-2 hover:bg-white/10 rounded-xl text-white/80 hover:text-white transition-colors" title="Volver al Dashboard">
               <ArrowLeft className="w-5 h-5" />
             </Link>
-            <h1 className="text-xl font-bold text-slate-800">Reportes y Estadísticas</h1>
+            <div>
+              <span className="text-xs font-semibold tracking-widest text-[#B38E5D] uppercase mb-1 block">ADMINISTRACIÓN</span>
+              <h1 className="text-2xl font-extrabold text-white leading-tight">Reportes y Estadísticas</h1>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <CurrencySwitcher />
             <DateRangeFilter />
           </div>
         </header>
 
-        <div className="flex gap-2 overflow-x-auto pb-2 border-b border-slate-200">
+        {/* Pestañas de Sub-navegación formato cápsula */}
+        <div className="bg-[#F4F1EA] p-1 rounded-2xl inline-flex gap-1 mb-4 overflow-x-auto">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => !tab.disabled && setActiveTab(tab.id as any)}
               disabled={tab.disabled}
               title={tab.tooltip}
-              className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors ${
-                tab.disabled ? 'opacity-50 cursor-not-allowed text-slate-400' :
-                activeTab === tab.id 
-                  ? 'bg-white text-blue-600 border-t border-x border-slate-200 -mb-[1px]' 
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+              className={`py-2 px-4 rounded-xl text-xs transition-all whitespace-nowrap ${
+                tab.disabled 
+                  ? 'opacity-50 cursor-not-allowed text-slate-400' 
+                  : activeTab === tab.id 
+                    ? 'bg-white text-dequino-secondary font-bold shadow-sm' 
+                    : 'text-slate-500 hover:text-slate-800 font-medium'
               }`}
             >
               {tab.label}
@@ -76,13 +83,13 @@ function ReportesContent() {
           ))}
         </div>
 
-        <div className="bg-transparent rounded-b-2xl">
+        <div className="bg-transparent">
           {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <p className="text-slate-500 animate-pulse">Cargando métricas...</p>
+            <div className="flex justify-center items-center h-64 bg-white rounded-3xl border border-slate-100">
+              <p className="text-slate-400 text-xs font-medium animate-pulse">Cargando métricas...</p>
             </div>
           ) : !data ? (
-            <div className="flex justify-center items-center h-64 text-red-500">
+            <div className="flex justify-center items-center h-64 bg-white rounded-3xl border border-slate-100 text-rose-500 text-xs font-semibold">
               Error al cargar datos.
             </div>
           ) : (
@@ -91,7 +98,7 @@ function ReportesContent() {
               {activeTab === 'consignacion' && data.consignacion && <ConsignacionTab data={data.consignacion} formatCurrency={formatCurrency} />}
               {activeTab === 'inventario' && <InventarioTab data={data.inventario} formatCurrency={formatCurrency} />}
               {activeTab === 'finanzas' && (
-                <div className="p-12 text-center text-slate-500 bg-white rounded-2xl shadow-sm border border-slate-200">
+                <div className="p-12 text-center text-slate-400 text-xs font-medium bg-white rounded-3xl shadow-sm border border-slate-100">
                   Módulo de Finanzas en construcción...
                 </div>
               )}
@@ -105,7 +112,7 @@ function ReportesContent() {
 
 export default function ReportesPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center">Cargando...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">Cargando...</div>}>
       <ReportesContent />
     </Suspense>
   );

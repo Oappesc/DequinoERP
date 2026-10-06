@@ -3,6 +3,7 @@
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { loginAdmin, requestAdminPasswordReset } from '@/lib/actions';
+import { Mail, Lock, ArrowRight } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -34,28 +35,120 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
-      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
-        <div className="bg-slate-900 px-6 py-8 text-white">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-400">DQ Sales</p>
-          <h1 className="mt-3 text-3xl font-bold">Acceso administrativo</h1>
-          <p className="mt-2 text-sm text-slate-300">Gestiona pedidos, pagos y reportes.</p>
+    <main className="min-h-screen bg-gradient-to-b from-[#FFFDF9] to-dequino-neutral flex flex-col items-center justify-between p-6 font-sans font-lato">
+      
+      {/* Cabecera Superior */}
+      <div className="flex flex-col items-center mt-8">
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#B38E5D] to-[#8C6D45] flex items-center justify-center shadow-lg mb-4 text-white font-black text-2xl tracking-tighter">
+          DQ
         </div>
-        <form onSubmit={submit} className="space-y-4 p-6">
-          <div>
-            <label htmlFor="email" className="mb-2 block text-sm font-medium text-slate-700">Correo electrónico</label>
-            <input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-slate-900 outline-none focus:border-sky-500 focus:bg-white" placeholder="admin@empresa.com" />
+        <p className="text-xs font-semibold tracking-widest text-[#B38E5D] uppercase mt-3 mb-1">
+          PANEL DE CONTROL
+        </p>
+        <h1 className="text-3xl font-bold text-dequino-secondary flex items-center gap-2">
+          Dequino <span className="text-dequino-primary font-normal">ERP</span>
+        </h1>
+      </div>
+
+      {/* Tarjeta Central del Formulario */}
+      <div className="bg-white rounded-3xl p-8 shadow-lg shadow-black/5 w-full max-w-sm border border-dequino-tertiary/40 flex flex-col relative my-auto">
+        {/* Pastilla decorativa superior */}
+        <div className="w-12 h-1 bg-gradient-to-r from-dequino-primary to-dequino-tertiary rounded-full mx-auto mb-6" />
+
+        <h2 className="text-xl font-bold text-dequino-secondary mb-1">
+          Acceso administrativo
+        </h2>
+        <p className="text-sm text-slate-500 mb-6">
+          Gestiona pedidos, pagos y reportes.
+        </p>
+
+        <form onSubmit={submit} className="flex flex-col">
+          {/* Campo Correo Electrónico */}
+          <div className="flex flex-col gap-1.5 mb-4">
+            <label htmlFor="email" className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">
+              CORREO ELECTRÓNICO
+            </label>
+            <div className="rounded-2xl border border-slate-200 bg-[#FCFCFA] focus-within:border-dequino-primary focus-within:ring-2 focus-within:ring-dequino-primary/20 flex items-center px-4 py-3 transition-all">
+              <Mail className="w-5 h-5 text-slate-400 mr-3 shrink-0" />
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+                className="text-slate-800 placeholder-slate-400 text-sm w-full outline-none bg-transparent"
+                placeholder="admin@empresa.com"
+              />
+            </div>
           </div>
-          <div>
-            <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-700">Contraseña</label>
-            <input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-slate-900 outline-none focus:border-sky-500 focus:bg-white" placeholder="Tu contraseña" />
+
+          {/* Campo Contraseña */}
+          <div className="flex flex-col gap-1.5 mb-4">
+            <label htmlFor="password" className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">
+              CONTRASEÑA
+            </label>
+            <div className="rounded-2xl border border-slate-200 bg-[#FCFCFA] focus-within:border-dequino-primary focus-within:ring-2 focus-within:ring-dequino-primary/20 flex items-center px-4 py-3 transition-all">
+              <Lock className="w-5 h-5 text-slate-400 mr-3 shrink-0" />
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+                className="text-slate-800 placeholder-slate-400 text-sm w-full outline-none bg-transparent"
+                placeholder="Tu contraseña"
+              />
+            </div>
           </div>
-          {error ? <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p> : null}
-          {message ? <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{message}</p> : null}
-          <button disabled={loading} className="w-full rounded-xl bg-slate-900 px-4 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-60">{loading ? 'Validando...' : 'Ingresar'}</button>
-          <button type="button" onClick={() => void forgotPassword()} className="w-full text-sm font-medium text-sky-700 hover:text-sky-900">Olvidé mi contraseña</button>
+
+          {/* Mensajes de error / éxito */}
+          {error ? (
+            <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700 mt-1 mb-2 border border-rose-100 text-center">
+              {error}
+            </p>
+          ) : null}
+
+          {message ? (
+            <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700 mt-1 mb-2 border border-emerald-100 text-center">
+              {message}
+            </p>
+          ) : null}
+
+          {/* Botón Principal */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-3 bg-dequino-primary hover:bg-[#6C8264] text-white font-medium py-3.5 px-6 rounded-2xl flex items-center justify-center gap-2 shadow-md shadow-dequino-primary/20 transition-all duration-200 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Validando...' : (
+              <>
+                <span>Ingresar</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+
+          {/* Enlace Olvidé mi contraseña */}
+          <button
+            type="button"
+            onClick={() => void forgotPassword()}
+            className="text-xs text-slate-400 hover:text-dequino-secondary font-medium transition-colors text-center mt-5 block w-full"
+          >
+            Olvidé mi contraseña
+          </button>
         </form>
       </div>
+
+      {/* Footer Inferior */}
+      <footer className="text-center pb-4 mt-6">
+        <p className="text-[10px] tracking-wider uppercase text-slate-400 font-semibold text-center">
+          DEQUINO LABORATORIOS & CUIDADO PERSONAL
+        </p>
+        <span className="text-[9px] text-slate-400 block mt-0.5 text-center">
+          Panel Administrativo v2.4
+        </span>
+      </footer>
+
     </main>
   );
 }

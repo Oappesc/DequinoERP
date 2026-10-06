@@ -163,11 +163,14 @@ export default function CortesTab({
   const totalUSD = cart.reduce((acc, c) => acc + (c.cantidad * c.precio), 0);
 
   return (
-    <div className="bg-white rounded-b-2xl border-x border-b border-slate-200 overflow-hidden">
+    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 overflow-hidden space-y-6">
       
-      <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-        <h3 className="font-semibold text-slate-700">Historial de Cortes de Pago</h3>
-        <button onClick={() => setShowModal(true)} className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-colors text-sm shadow-sm shadow-rose-200">
+      <div className="flex justify-between items-center pb-2">
+        <h3 className="text-base font-extrabold text-slate-800 tracking-tight">Historial de Cortes de Pago</h3>
+        <button 
+          onClick={() => setShowModal(true)} 
+          className="bg-dequino-primary hover:bg-[#6C8264] text-white font-medium py-2.5 px-5 rounded-2xl flex items-center gap-2 shadow-sm text-xs transition-all"
+        >
           <Plus className="w-4 h-4" /> Cargar Corte
         </button>
       </div>
@@ -175,45 +178,50 @@ export default function CortesTab({
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-white border-b border-slate-200 text-slate-500 text-sm">
-              <th className="p-4 font-semibold">Código Corte</th>
-              <th className="p-4 font-semibold">Fecha Registro</th>
-              <th className="p-4 font-semibold text-center">Estatus</th>
-              <th className="p-4 font-semibold text-right">Total Liquidado</th>
-              <th className="p-4 font-semibold text-center">Acciones</th>
+            <tr className="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+              <th className="pb-3 pr-4 font-extrabold">Código Corte</th>
+              <th className="pb-3 px-4 font-extrabold">Fecha Registro</th>
+              <th className="pb-3 px-4 font-extrabold text-center">Estatus</th>
+              <th className="pb-3 px-4 font-extrabold text-right">Total Liquidado</th>
+              <th className="pb-3 pl-4 font-extrabold text-center">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-100/70 text-sm">
             {cortes.length === 0 ? (
-              <tr><td colSpan={5} className="p-12 text-center text-slate-500">No hay cortes registrados.</td></tr>
+              <tr><td colSpan={5} className="py-12 text-center text-xs text-slate-400 font-medium">No hay cortes registrados.</td></tr>
             ) : cortes.map(c => (
-              <tr key={c.id} className="hover:bg-slate-50/50 transition-colors">
-                <td className="p-4 font-bold text-slate-700">{c.codigo}</td>
-                <td className="p-4 text-slate-600">
+              <tr key={c.id} className="hover:bg-[#FAF8F5] transition-colors">
+                <td className="py-3.5 pr-4 font-mono font-bold text-slate-800 text-xs">{c.codigo}</td>
+                <td className="py-3.5 px-4 text-slate-600 text-xs">
                   {new Date(c.created_at).toLocaleString()}
-                  {c.fecha_confirmacion && <div className="text-xs text-emerald-600 font-medium mt-1">Pago: {new Date(c.fecha_confirmacion).toLocaleDateString()}</div>}
+                  {c.fecha_confirmacion && <div className="text-[11px] text-emerald-700 font-bold mt-0.5">Pago: {new Date(c.fecha_confirmacion).toLocaleDateString()}</div>}
                 </td>
-                <td className="p-4 text-center">
-                  <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${
-                    c.estado === 'pendiente' ? 'bg-amber-100 text-amber-700' : 
-                    c.estado === 'confirmado' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+                <td className="py-3.5 px-4 text-center">
+                  <span className={`inline-block font-bold text-[10px] px-2.5 py-0.5 rounded-full border ${
+                    c.estado === 'pendiente' 
+                      ? 'bg-amber-50 text-amber-700 border-amber-200' 
+                      : c.estado === 'confirmado' 
+                        ? 'bg-[#EEF3EC] text-dequino-secondary border-dequino-tertiary/60' 
+                        : 'bg-slate-100 text-slate-600 border-slate-200'
                   }`}>
                     {c.estado.toUpperCase()}
                   </span>
                 </td>
-                <td className="p-4 text-right font-black text-rose-600">
+                <td className="py-3.5 px-4 text-right font-extrabold text-rose-600">
                   {formatCurrency(c.total_usd)}
                 </td>
-                <td className="p-4">
+                <td className="py-3.5 pl-4">
                   <div className="flex items-center justify-center gap-2">
-                    <button className="text-slate-400 hover:text-slate-600 p-2" title="Ver Detalle"><FileText className="w-4 h-4"/></button>
+                    <button className="text-dequino-primary hover:text-dequino-secondary hover:bg-[#EEF3EC] p-2 rounded-xl transition-colors" title="Ver Detalle">
+                      <FileText className="w-4 h-4"/>
+                    </button>
                     {c.estado === 'pendiente' && (
                       <button 
                         onClick={() => handleConfirmar(c.id)}
                         disabled={confirming === c.id}
-                        className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1"
+                        className="bg-[#EEF3EC] text-dequino-secondary hover:bg-dequino-tertiary/60 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center gap-1"
                       >
-                        <CheckCircle className="w-3 h-3" />
+                        <CheckCircle className="w-3.5 h-3.5" />
                         {confirming === c.id ? '...' : 'Confirmar'}
                       </button>
                     )}
@@ -228,57 +236,65 @@ export default function CortesTab({
       {/* MODAL CREAR CORTE */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-50 rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="bg-white rounded-3xl shadow-xl border border-slate-100 w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
             
-            <div className="p-4 bg-white border-b border-slate-200 flex items-center justify-between shrink-0">
-              <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <Receipt className="w-6 h-6 text-rose-600" /> Nuevo Corte (Liquidación de Ventas)
+            <div className="p-6 bg-[#FAF8F5] border-b border-slate-100 flex items-center justify-between shrink-0">
+              <h3 className="text-dequino-secondary text-lg font-bold flex items-center gap-2">
+                <Receipt className="w-5 h-5 text-rose-600" /> Nuevo Corte (Liquidación de Ventas)
               </h3>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600">✕</button>
+              <button 
+                onClick={() => setShowModal(false)} 
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-200/60 transition-colors"
+              >
+                ✕
+              </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
               
-              <div className="md:col-span-1 space-y-6">
-                <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3 mb-6">
-                  <h4 className="font-semibold text-slate-700 text-sm">Carga Inteligente por PDF</h4>
-                  <p className="text-xs text-slate-500">Sube el reporte de ventas en PDF.</p>
+              <div className="md:col-span-1 space-y-5">
+                <div className="border-2 border-dashed border-dequino-tertiary/80 hover:border-dequino-primary bg-[#FAF8F5] rounded-2xl p-5 text-center transition-all space-y-2">
+                  <h4 className="font-bold text-dequino-secondary text-xs uppercase tracking-wider">Carga Inteligente por PDF</h4>
+                  <p className="text-xs text-slate-500 leading-relaxed">Sube el reporte de ventas en PDF.</p>
                   
                   <input type="file" accept="application/pdf" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
                   
                   <button 
                     onClick={() => fileInputRef.current?.click()}
                     disabled={loadingPdf}
-                    className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl p-4 font-medium transition-colors disabled:opacity-50"
+                    className="bg-white hover:bg-slate-50 text-dequino-secondary border border-dequino-tertiary font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 mx-auto mt-3 shadow-sm transition-all disabled:opacity-50"
                   >
-                    {loadingPdf ? <span className="animate-pulse">Procesando...</span> : <><Upload className="w-5 h-5" /> Subir Archivo PDF</>}
+                    {loadingPdf ? <span className="animate-pulse">Procesando...</span> : <><Upload className="w-4 h-4 text-dequino-primary" /> Subir Archivo PDF</>}
                   </button>
 
-                  {pdfText && <p className="text-xs text-emerald-600 font-medium flex items-center gap-1"><CheckCircle className="w-3 h-3"/> {pdfText}</p>}
+                  {pdfText && <p className="text-xs text-emerald-700 font-bold flex items-center justify-center gap-1 mt-2"><CheckCircle className="w-3.5 h-3.5"/> {pdfText}</p>}
                 </div>
                 
-                <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
-                  <h4 className="font-semibold text-slate-700 text-sm">Agregar Producto Manual</h4>
-                  <p className="text-xs text-slate-500 mb-2">Busca los productos que el cliente ha reportado como vendidos.</p>
+                <div className="bg-[#FAF8F5]/60 p-4 rounded-2xl border border-slate-100 space-y-3">
+                  <h4 className="font-bold text-slate-600 text-xs uppercase tracking-wider">Agregar Producto Manual</h4>
+                  <p className="text-xs text-slate-500 mb-1 leading-relaxed">Busca los productos que el cliente ha reportado como vendidos.</p>
                   
                   <input 
                     type="text" 
                     placeholder="Buscar en inventario en custodia..." 
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-rose-500"
+                    className="w-full rounded-2xl border border-slate-200 bg-[#FCFCFA] px-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-dequino-primary focus:ring-2 focus:ring-dequino-primary/20 transition-all"
                   />
                   {searchTerm.length > 0 && (
                     <div className="space-y-1 mt-2">
                       {filteredSearch.map(i => (
-                        <div key={i.id} className="flex items-center justify-between p-2 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-100 text-xs">
+                        <div key={i.id} className="flex items-center justify-between p-2.5 bg-white hover:bg-slate-50 rounded-xl border border-slate-100 text-xs transition-colors">
                           <div className="truncate mr-2">
-                            <div className="font-bold text-slate-700">{i.productos.codigo}</div>
+                            <div className="font-bold text-slate-800 font-mono">{i.productos.codigo}</div>
                             <div className="text-slate-500 truncate">{formatProductName(i.productos)}</div>
-                            <div className="text-blue-600 font-medium">Disp: {i.cantidad_actual}</div>
+                            <div className="text-dequino-secondary font-bold text-[11px] mt-0.5">Disp: {i.cantidad_actual}</div>
                           </div>
-                          <button onClick={() => handleAddToCorte(i)} className="p-1.5 bg-rose-100 text-rose-700 rounded-md hover:bg-rose-200">
-                            <Plus className="w-4 h-4" />
+                          <button 
+                            onClick={() => handleAddToCorte(i)} 
+                            className="p-1.5 bg-[#EEF3EC] text-dequino-secondary hover:bg-dequino-tertiary/60 rounded-lg transition-colors"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       ))}
@@ -288,51 +304,50 @@ export default function CortesTab({
                 </div>
               </div>
 
-              <div className="md:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-full overflow-hidden">
-                <div className="p-3 bg-slate-50 border-b border-slate-200 text-sm font-semibold text-slate-600">
+              <div className="md:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full overflow-hidden">
+                <div className="p-4 bg-[#FAF8F5] border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Productos a Liquidar
                 </div>
                 
-                <div className="flex-1 overflow-y-auto p-0">
+                <div className="flex-1 overflow-y-auto p-0 min-h-[220px]">
                   {cart.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full p-8 text-slate-400">
-                      <Receipt className="w-12 h-12 mb-2 opacity-50" />
-                      <p>Agrega los productos que el cliente vendió</p>
+                      <Receipt className="w-12 h-12 mb-2 text-slate-300 stroke-1" />
+                      <p className="text-xs font-medium text-slate-400">Agrega los productos que el cliente vendió</p>
                     </div>
                   ) : (
-                    <table className="w-full text-left text-sm">
-                      <thead className="bg-slate-50/50 sticky top-0">
-                        <tr className="text-slate-500 border-b border-slate-100">
-                          <th className="p-3 font-medium">Producto</th>
-                          <th className="p-3 font-medium text-right w-24">Vendidos</th>
-                          <th className="p-3 font-medium text-right w-28">Subtotal</th>
-                          <th className="p-3 font-medium text-center w-12"></th>
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-[#FAF8F5]/60 sticky top-0">
+                        <tr className="text-slate-400 border-b border-slate-100 uppercase text-[10px] font-bold">
+                          <th className="p-3">Producto</th>
+                          <th className="p-3 text-right w-24">Vendidos</th>
+                          <th className="p-3 text-right w-28">Subtotal</th>
+                          <th className="p-3 text-center w-12"></th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-50">
+                      <tbody className="divide-y divide-slate-100/70">
                         {cart.map(c => (
-                          <tr key={c.producto_id} className="hover:bg-slate-50/50">
+                          <tr key={c.producto_id} className="hover:bg-[#FAF8F5]/40 transition-colors">
                             <td className="p-3">
-                              <div className="font-bold text-slate-800">{c.producto.codigo}</div>
+                              <div className="font-bold text-slate-800 font-mono">{c.producto.codigo}</div>
                               <div className="text-slate-500 truncate max-w-[200px]">{formatProductName(c.producto)}</div>
-                              <div className="text-xs text-blue-500 mt-0.5">En custodia: {c.max_cantidad}</div>
-                              {c.alerta && <div className="text-xs text-rose-600 font-bold bg-rose-50 inline-block px-2 py-0.5 rounded mt-1">{c.alerta}</div>}
+                              <div className="text-[11px] text-slate-400 mt-0.5">En custodia: {c.max_cantidad}</div>
+                              {c.alerta && <div className="text-xs text-rose-600 font-bold bg-rose-50 inline-block px-2 py-0.5 rounded-md mt-1">{c.alerta}</div>}
                             </td>
                             <td className="p-3 text-right">
                               <input 
                                 type="number" 
                                 min="1"
-                                
                                 value={c.cantidad}
                                 onChange={(e) => handleQtyChange(c.producto_id, parseInt(e.target.value) || 1, c.max_cantidad)}
-                                className="w-16 border border-slate-200 rounded-lg px-2 py-1 text-center outline-none focus:border-rose-500"
+                                className="w-16 rounded-xl border border-slate-200 bg-[#FCFCFA] px-2 py-1 text-center font-bold text-slate-800 outline-none focus:border-dequino-primary"
                               />
                             </td>
-                            <td className="p-3 text-right font-medium text-slate-700">
+                            <td className="p-3 text-right font-extrabold text-slate-800">
                               {formatCurrency(c.precio * c.cantidad)}
                             </td>
                             <td className="p-3 text-center">
-                              <button onClick={() => handleRemove(c.producto_id)} className="text-slate-400 hover:text-slate-600 p-1">
+                              <button onClick={() => handleRemove(c.producto_id)} className="text-slate-400 hover:text-rose-600 p-1 transition-colors">
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </td>
@@ -343,15 +358,15 @@ export default function CortesTab({
                   )}
                 </div>
 
-                <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
+                <div className="p-5 bg-[#FAF8F5] border-t border-slate-100 flex items-center justify-between shrink-0">
                   <div>
-                    <p className="text-sm text-slate-500">Monto del Corte</p>
-                    <p className="text-xl font-black text-rose-600">{formatCurrency(totalUSD)}</p>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Monto del Corte</p>
+                    <p className="text-2xl font-extrabold text-rose-600">{formatCurrency(totalUSD)}</p>
                   </div>
                   <button 
                     onClick={handleSave} 
                     disabled={saving || cart.length === 0}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
+                    className="bg-dequino-primary hover:bg-[#6C8264] text-white font-bold py-3 px-6 rounded-2xl flex items-center gap-2 text-xs shadow-md shadow-dequino-primary/20 transition-all disabled:opacity-50"
                   >
                     <Save className="w-4 h-4" /> {saving ? 'Guardando...' : 'Generar Corte'}
                   </button>

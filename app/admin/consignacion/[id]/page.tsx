@@ -58,76 +58,114 @@ export default function ConsignacionClientPage({ params }: { params: Promise<{ i
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-6 pb-20 animate-in fade-in duration-500">
+    <div className="min-h-screen bg-dequino-neutral p-4 md:p-6 pb-20 font-sans font-lato animate-in fade-in duration-500">
       <div className="mx-auto max-w-7xl space-y-6">
         
-        {/* CABECERA Y KPIs */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-            <div className="flex gap-4">
-              <Link href="/admin/consignacion" className="mt-1 p-2 bg-slate-50 hover:bg-slate-100 rounded-xl text-slate-500 transition-colors h-fit">
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <div>
-                <div className="flex items-center gap-3">
-                  <h1 className="text-2xl font-black text-slate-900 tracking-tight">{cliente.razon_social}</h1>
-                  <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${cliente.activo ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
-                    {cliente.activo ? 'ACTIVO' : 'INACTIVO'}
-                  </span>
-                </div>
-                <div className="text-sm text-slate-500 mt-2 space-y-1">
-                  <p><span className="font-medium text-slate-700">RIF:</span> {cliente.rif_cedula}</p>
-                  <p><span className="font-medium text-slate-700">Teléfono:</span> {cliente.telefono || 'N/A'}</p>
-                  <p><span className="font-medium text-slate-700">Dirección:</span> {cliente.direccion || 'N/A'}</p>
-                </div>
+        {/* CABECERA SUPERIOR */}
+        <div className="bg-dequino-secondary text-white rounded-3xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-4">
+            <Link href="/admin/consignacion" className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <div>
+              <div className="text-xs font-semibold tracking-widest text-[#B38E5D] uppercase mb-1">
+                CONSIGNACIÓN
               </div>
-            </div>
-
-            <div className="flex gap-2">
-              <button className="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl font-medium transition-colors flex items-center gap-2">
-                <Edit className="w-4 h-4" /> Editar
-              </button>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-2xl font-extrabold text-white tracking-tight leading-tight">
+                  {cliente.razon_social}
+                </h1>
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                  cliente.activo ? 'bg-white/20 text-white' : 'bg-white/10 text-white/60'
+                }`}>
+                  {cliente.activo ? 'ACTIVO' : 'INACTIVO'}
+                </span>
+              </div>
+              <div className="text-xs text-white/80 font-normal mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                <span><strong className="text-white">RIF:</strong> {cliente.rif_cedula}</span>
+                <span><strong className="text-white">Teléfono:</strong> {cliente.telefono || 'N/A'}</span>
+                <span><strong className="text-white">Dirección:</strong> {cliente.direccion || 'N/A'}</span>
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-100">
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-              <div className="flex items-center gap-2 text-slate-500 text-sm font-medium mb-2">
-                <Package className="w-4 h-4 text-violet-500" /> Último Pedido
-              </div>
-              <p className="text-lg font-bold text-slate-800">
-                {ultimoPedido ? new Date(ultimoPedido).toLocaleDateString() : '-'}
-              </p>
-            </div>
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-              <div className="flex items-center gap-2 text-slate-500 text-sm font-medium mb-2">
-                <Receipt className="w-4 h-4 text-sky-500" /> Último Corte
-              </div>
-              <p className="text-lg font-bold text-slate-800">
-                {ultimoCorte ? new Date(ultimoCorte).toLocaleDateString() : '-'}
-              </p>
-            </div>
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-              <div className="flex items-center gap-2 text-slate-500 text-sm font-medium mb-2">
-                <Wallet className="w-4 h-4 text-rose-500" /> Deuda Pendiente
-              </div>
-              <p className="text-2xl font-black text-rose-600">
-                {formatCurrency(deudaTotal)}
-              </p>
-            </div>
+          <div className="flex items-center gap-2 self-end md:self-auto">
+            <button className="bg-white/10 hover:bg-white/20 text-white border border-white/20 font-medium py-2 px-4 rounded-2xl flex items-center gap-2 text-xs transition-all">
+              <Edit className="w-3.5 h-3.5" /> Editar
+            </button>
           </div>
         </div>
 
-        {/* TABS */}
-        <div className="flex gap-2 overflow-x-auto pb-2 border-b border-slate-200">
-          <button onClick={() => setActiveTab('pedidos')} className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors flex items-center gap-2 ${activeTab === 'pedidos' ? 'bg-white text-violet-600 border-t border-x border-slate-200 -mb-[1px]' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'}`}>
-            <ClipboardList className="w-4 h-4" /> Pedidos
+        {/* TARJETAS DE RESUMEN (KPIS) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Último Pedido</span>
+              <div className="w-8 h-8 rounded-xl bg-[#EEF3EC] text-dequino-secondary flex items-center justify-center">
+                <Package className="w-4 h-4" />
+              </div>
+            </div>
+            <p className="text-2xl font-extrabold text-dequino-secondary">
+              {ultimoPedido ? new Date(ultimoPedido).toLocaleDateString() : '-'}
+            </p>
+          </div>
+
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Último Corte</span>
+              <div className="w-8 h-8 rounded-xl bg-[#EEF3EC] text-dequino-secondary flex items-center justify-center">
+                <Receipt className="w-4 h-4" />
+              </div>
+            </div>
+            <p className="text-2xl font-extrabold text-dequino-secondary">
+              {ultimoCorte ? new Date(ultimoCorte).toLocaleDateString() : '-'}
+            </p>
+          </div>
+
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Deuda Pendiente</span>
+              <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                <Wallet className="w-4 h-4" />
+              </div>
+            </div>
+            <p className="text-2xl font-extrabold text-rose-600">
+              {formatCurrency(deudaTotal)}
+            </p>
+          </div>
+        </div>
+
+        {/* TABS CÁPSULA */}
+        <div className="bg-[#F4F1EA] p-1 rounded-2xl inline-flex gap-1 mb-4">
+          <button 
+            onClick={() => setActiveTab('pedidos')} 
+            className={`py-2 px-4 rounded-xl text-xs flex items-center gap-2 transition-all ${
+              activeTab === 'pedidos' 
+                ? 'bg-white text-dequino-secondary font-bold shadow-sm' 
+                : 'text-slate-500 hover:text-slate-800 font-medium'
+            }`}
+          >
+            <ClipboardList className="w-3.5 h-3.5" /> Pedidos
           </button>
-          <button onClick={() => setActiveTab('inventario')} className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors flex items-center gap-2 ${activeTab === 'inventario' ? 'bg-white text-violet-600 border-t border-x border-slate-200 -mb-[1px]' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'}`}>
-            <Package className="w-4 h-4" /> Inventario
+          <button 
+            onClick={() => setActiveTab('inventario')} 
+            className={`py-2 px-4 rounded-xl text-xs flex items-center gap-2 transition-all ${
+              activeTab === 'inventario' 
+                ? 'bg-white text-dequino-secondary font-bold shadow-sm' 
+                : 'text-slate-500 hover:text-slate-800 font-medium'
+            }`}
+          >
+            <Package className="w-3.5 h-3.5" /> Inventario
           </button>
-          <button onClick={() => setActiveTab('cortes')} className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors flex items-center gap-2 ${activeTab === 'cortes' ? 'bg-white text-violet-600 border-t border-x border-slate-200 -mb-[1px]' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'}`}>
-            <Receipt className="w-4 h-4" /> Cortes de Pago
+          <button 
+            onClick={() => setActiveTab('cortes')} 
+            className={`py-2 px-4 rounded-xl text-xs flex items-center gap-2 transition-all ${
+              activeTab === 'cortes' 
+                ? 'bg-white text-dequino-secondary font-bold shadow-sm' 
+                : 'text-slate-500 hover:text-slate-800 font-medium'
+            }`}
+          >
+            <Receipt className="w-3.5 h-3.5" /> Cortes de Pago
           </button>
         </div>
 

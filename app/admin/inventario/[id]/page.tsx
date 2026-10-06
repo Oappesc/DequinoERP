@@ -95,54 +95,106 @@ export default function InventarioDetailPage({ params }: { params: Promise<{ id:
     if (!res.error) router.push('/admin/inventario');
   };
 
-  if (loading) return <div className="p-8 text-center text-slate-500 flex items-center justify-center min-h-screen">Cargando producto...</div>;
+  if (loading) return <div className="p-8 text-center text-slate-400 flex items-center justify-center min-h-screen font-sans font-lato">Cargando producto...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-6 pb-20 animate-in fade-in duration-500">
+    <div className="min-h-screen bg-dequino-neutral p-4 md:p-6 pb-20 font-sans font-lato animate-in fade-in duration-500">
       <div className="mx-auto max-w-4xl space-y-6">
         
-        <header className="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+        {/* Banner Superior */}
+        <div className="bg-dequino-secondary text-white rounded-3xl p-6 shadow-sm flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <Link href="/admin/inventario" className="p-2 hover:bg-slate-100 rounded-lg text-slate-500">
+            <Link href="/admin/inventario" className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </Link>
-            <h1 className="text-xl font-bold text-slate-800">
-              {isNew ? 'Registrar Producto' : formData.nombre || 'Editar Producto'}
-            </h1>
+            <div>
+              <span className="text-xs font-semibold tracking-widest text-[#B38E5D] uppercase mb-1 block">
+                ADMINISTRACIÓN
+              </span>
+              <h1 className="text-2xl font-extrabold text-white leading-tight">
+                {isNew ? 'Registrar Producto' : `Editar: ${formData.nombre || 'Producto'}`}
+              </h1>
+            </div>
           </div>
           {!isNew && (
-            <button type="button" onClick={handleDelete} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg">
+            <button 
+              type="button" 
+              onClick={handleDelete} 
+              className="p-2.5 text-white/70 hover:text-white hover:bg-white/10 rounded-2xl transition-colors"
+              title="Eliminar producto"
+            >
               <Trash2 className="w-5 h-5" />
             </button>
           )}
-        </header>
+        </div>
 
-        <form onSubmit={handleSave} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
-          <div className="bg-blue-50 text-blue-700 p-4 rounded-xl text-sm flex items-start gap-3">
-            <Info className="w-5 h-5 shrink-0" />
-            <p>Todos los productos registrados en este módulo están configurados como <strong>disponibles bajo pedido</strong>. No se requiere control de stock mínimo.</p>
-          </div>
+        {/* Banner Informativo */}
+        <div className="bg-[#F4F7F3] border border-dequino-tertiary/60 rounded-2xl p-4 text-xs text-dequino-secondary flex items-center gap-3 mb-6">
+          <Info className="w-5 h-5 shrink-0 text-dequino-primary" />
+          <p>
+            Todos los productos registrados en este módulo están configurados como <strong className="font-bold">disponibles bajo pedido</strong>. No se requiere control de stock mínimo.
+          </p>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Formulario */}
+        <form onSubmit={handleSave} className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 flex flex-col gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Nombre del Producto</label>
-              <input required type="text" name="nombre" placeholder="Ej. Champu para mascotas" value={formData.nombre || ''} onChange={handleChange} className="w-full border border-slate-200 rounded-xl px-4 py-2 outline-none focus:border-sky-500" />
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Nombre del Producto</label>
+              <input 
+                required 
+                type="text" 
+                name="nombre" 
+                placeholder="Ej. Talco para gatos" 
+                value={formData.nombre || ''} 
+                onChange={handleChange} 
+                className="w-full rounded-2xl border border-slate-200 bg-[#FCFCFA] px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-dequino-primary focus:ring-2 focus:ring-dequino-primary/20 transition-all" 
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Descripción / Variante</label>
-              <input required type="text" name="descripcion" placeholder="Ej. Pelaje Blanco" value={formData.descripcion || ''} onChange={handleChange} className="w-full border border-slate-200 rounded-xl px-4 py-2 outline-none focus:border-sky-500" />
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Descripción / Variante</label>
+              <input 
+                required 
+                type="text" 
+                name="descripcion" 
+                placeholder="Ej. Antipulgas y Garrapatas" 
+                value={formData.descripcion || ''} 
+                onChange={handleChange} 
+                className="w-full rounded-2xl border border-slate-200 bg-[#FCFCFA] px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-dequino-primary focus:ring-2 focus:ring-dequino-primary/20 transition-all" 
+              />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Código / PT (Opcional)</label>
-              <input type="text" name="codigo" placeholder="Ej. PT-12254" value={formData.codigo || ''} onChange={handleChange} className="w-full border border-slate-200 rounded-xl px-4 py-2 outline-none focus:border-sky-500" />
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Código / PT (Opcional)</label>
+              <input 
+                type="text" 
+                name="codigo" 
+                placeholder="Ej. PT-252" 
+                value={formData.codigo || ''} 
+                onChange={handleChange} 
+                className="w-full rounded-2xl border border-slate-200 bg-[#FCFCFA] px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-dequino-primary focus:ring-2 focus:ring-dequino-primary/20 transition-all" 
+              />
             </div>
             
-            <div className="space-y-1">
-              <label className="block text-sm font-medium text-slate-700 mb-1">Tamaño / Presentación</label>
+            <div>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Tamaño / Presentación</label>
               <div className="flex gap-2">
-                <input required type="number" step="0.01" name="tamano_valor" placeholder="Ej. 240" value={formData.tamano_valor ?? ''} onChange={handleChange} className="w-full border border-slate-200 rounded-xl px-4 py-2 outline-none focus:border-sky-500" />
-                <select name="unidad_medida" value={formData.unidad_medida || 'unidad'} onChange={handleChange} className="w-32 border border-slate-200 rounded-xl px-4 py-2 bg-white outline-none focus:border-sky-500">
+                <input 
+                  required 
+                  type="number" 
+                  step="0.01" 
+                  name="tamano_valor" 
+                  placeholder="Ej. 225" 
+                  value={formData.tamano_valor ?? ''} 
+                  onChange={handleChange} 
+                  className="w-full rounded-2xl border border-slate-200 bg-[#FCFCFA] px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-dequino-primary focus:ring-2 focus:ring-dequino-primary/20 transition-all" 
+                />
+                <select 
+                  name="unidad_medida" 
+                  value={formData.unidad_medida || 'unidad'} 
+                  onChange={handleChange} 
+                  className="w-36 rounded-2xl border border-slate-200 bg-[#FCFCFA] px-4 py-3 text-sm text-slate-800 outline-none focus:border-dequino-primary focus:ring-2 focus:ring-dequino-primary/20 transition-all"
+                >
                   <option value="unidad">unidades</option>
                   <option value="kg">kg</option>
                   <option value="g">gramos (g)</option>
@@ -153,17 +205,37 @@ export default function InventarioDetailPage({ params }: { params: Promise<{ id:
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Precio Cadena ($ USD)</label>
-              <input required type="number" step="0.01" name="precio" value={formData.precio ?? 0} onChange={handleChange} className="w-full border border-slate-200 rounded-xl px-4 py-2 outline-none focus:border-sky-500" />
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Precio Cadena ($ USD)</label>
+              <input 
+                required 
+                type="number" 
+                step="0.01" 
+                name="precio" 
+                value={formData.precio ?? 0} 
+                onChange={handleChange} 
+                className="w-full rounded-2xl border border-slate-200 bg-[#FCFCFA] px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-dequino-primary focus:ring-2 focus:ring-dequino-primary/20 transition-all" 
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Precio Distribuidor ($ USD)</label>
-              <input required type="number" step="0.01" name="precio_mayorista" value={formData.precio_mayorista ?? 0} onChange={handleChange} className="w-full border border-slate-200 rounded-xl px-4 py-2 outline-none focus:border-sky-500" />
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Precio Distribuidor ($ USD)</label>
+              <input 
+                required 
+                type="number" 
+                step="0.01" 
+                name="precio_mayorista" 
+                value={formData.precio_mayorista ?? 0} 
+                onChange={handleChange} 
+                className="w-full rounded-2xl border border-slate-200 bg-[#FCFCFA] px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-dequino-primary focus:ring-2 focus:ring-dequino-primary/20 transition-all" 
+              />
             </div>
           </div>
 
           <div className="flex justify-end pt-4 border-t border-slate-100">
-            <button type="submit" disabled={saving} className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-colors disabled:opacity-50">
+            <button 
+              type="submit" 
+              disabled={saving} 
+              className="bg-dequino-primary hover:bg-[#6C8264] text-white font-medium py-3.5 px-7 rounded-2xl flex items-center justify-center gap-2 shadow-md shadow-dequino-primary/20 transition-all text-sm ml-auto disabled:opacity-50"
+            >
               <Save className="w-4 h-4" />
               {saving ? 'Guardando...' : 'Guardar Producto'}
             </button>

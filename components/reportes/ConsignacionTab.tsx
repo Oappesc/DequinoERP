@@ -1,8 +1,7 @@
 'use client';
 import { useState, useMemo } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
-import { Package, Receipt, AlertCircle, RefreshCw, FileText } from 'lucide-react';
-
+import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
+import { Package, Receipt, AlertCircle, RefreshCw } from 'lucide-react';
 
 function safeNum(val: any): number {
   const n = Number(val);
@@ -94,18 +93,21 @@ export default function ConsignacionTab({ data, formatCurrency }: { data: any, f
     }
   }, [selectedClient, data]);
 
-  if (!data) return <div>Sin datos</div>;
+  if (!data) return <div className="text-xs text-slate-400 py-10 text-center font-medium">Sin datos</div>;
 
   return (
     <div className="space-y-6">
       
       {/* Selector de Alcance */}
-      <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <h2 className="font-bold text-slate-800 text-lg">Reporte de Consignación</h2>
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+        <div>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">FILTRADO DE DATOS</span>
+          <h2 className="font-bold text-dequino-secondary text-base">Reporte de Consignación</h2>
+        </div>
         <select 
           value={selectedClient} 
           onChange={(e) => setSelectedClient(e.target.value)}
-          className="border border-slate-200 rounded-lg px-4 py-2 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 outline-none focus:border-indigo-500 transition-colors cursor-pointer"
+          className="rounded-2xl border border-slate-200 bg-[#FCFCFA] px-4 py-2.5 text-xs font-medium text-slate-700 outline-none focus:border-dequino-primary focus:ring-2 focus:ring-dequino-primary/20 transition-all cursor-pointer"
         >
           <option value="all">Todos los clientes (Consolidado)</option>
           {data.clientes.map((c: any) => (
@@ -116,72 +118,72 @@ export default function ConsignacionTab({ data, formatCurrency }: { data: any, f
 
       {/* KPIs Superiores */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white border-slate-200 shadow-sm rounded-2xl">
-          <div className="p-6">
-            <div className="flex items-center justify-between space-y-0 pb-2">
-              <p className="text-sm font-medium text-slate-500">{selectedClient === 'all' ? 'Capital en Calle Global' : 'Su Capital en Calle'}</p>
-              <Package className="h-5 w-5 text-indigo-500" />
+        <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
+          <div className="flex items-center justify-between pb-2">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{selectedClient === 'all' ? 'Capital en Calle' : 'Su Capital en Calle'}</p>
+            <div className="w-8 h-8 rounded-xl bg-[#EEF3EC] flex items-center justify-center text-dequino-secondary">
+              <Package className="h-4 w-4" />
             </div>
-            <div className="text-2xl font-black text-slate-800">{formatCurrency(kpis.capitalEnCalle)}</div>
-            <p className="text-xs text-slate-500 mt-1">Mercancía en custodia</p>
           </div>
+          <div className="text-2xl font-extrabold text-dequino-secondary mt-1">{formatCurrency(kpis.capitalEnCalle)}</div>
+          <p className="text-[10px] text-slate-400 font-medium mt-1">Mercancía en custodia</p>
         </div>
         
-        <div className="bg-white border-slate-200 shadow-sm rounded-2xl">
-          <div className="p-6">
-            <div className="flex items-center justify-between space-y-0 pb-2">
-              <p className="text-sm font-medium text-slate-500">Ventas Liquidadas</p>
-              <Receipt className="h-5 w-5 text-emerald-500" />
+        <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
+          <div className="flex items-center justify-between pb-2">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Ventas Liquidadas</p>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-700">
+              <Receipt className="h-4 w-4" />
             </div>
-            <div className="text-2xl font-black text-slate-800">{formatCurrency(kpis.totalLiquidado)}</div>
-            <p className="text-xs text-slate-500 mt-1">Acumuladas en periodo</p>
           </div>
+          <div className="text-2xl font-extrabold text-dequino-primary mt-1">{formatCurrency(kpis.totalLiquidado)}</div>
+          <p className="text-[10px] text-slate-400 font-medium mt-1">Acumuladas en periodo</p>
         </div>
 
-        <div className="bg-white border-slate-200 shadow-sm rounded-2xl">
-          <div className="p-6">
-            <div className="flex items-center justify-between space-y-0 pb-2">
-              <p className="text-sm font-medium text-slate-500">Cortes Pendientes</p>
-              <AlertCircle className="h-5 w-5 text-rose-500" />
+        <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
+          <div className="flex items-center justify-between pb-2">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Cortes Pendientes</p>
+            <div className="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center text-amber-700">
+              <AlertCircle className="h-4 w-4" />
             </div>
-            <div className="text-2xl font-black text-slate-800">{formatCurrency(kpis.cortesPendientes)}</div>
-            <p className="text-xs text-slate-500 mt-1">Esperando confirmación</p>
           </div>
+          <div className="text-2xl font-extrabold text-amber-800 mt-1">{formatCurrency(kpis.cortesPendientes)}</div>
+          <p className="text-[10px] text-slate-400 font-medium mt-1">Esperando confirmación</p>
         </div>
 
-        <div className="bg-white border-slate-200 shadow-sm rounded-2xl">
-          <div className="p-6">
-            <div className="flex items-center justify-between space-y-0 pb-2">
-              <p className="text-sm font-medium text-slate-500">Tasa de Liquidación</p>
-              <RefreshCw className="h-5 w-5 text-blue-500" />
+        <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
+          <div className="flex items-center justify-between pb-2">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tasa de Liquidación</p>
+            <div className="w-8 h-8 rounded-xl bg-stone-100 flex items-center justify-center text-slate-700">
+              <RefreshCw className="h-4 w-4" />
             </div>
-            <div className="text-2xl font-black text-slate-800">{kpis.tasaLiquidacion.toFixed(1)}%</div>
-            <p className="text-xs text-slate-500 mt-1">Sell-Through / Retorno</p>
           </div>
+          <div className="text-2xl font-extrabold text-slate-800 mt-1">{kpis.tasaLiquidacion.toFixed(1)}%</div>
+          <p className="text-[10px] text-slate-400 font-medium mt-1">Sell-Through / Retorno</p>
         </div>
       </div>
 
       {/* Gráfico de Evolución */}
-      <div className="bg-white border-slate-200 shadow-sm rounded-2xl">
+      <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
         <div className="border-b border-slate-100 pb-4 flex flex-row items-center justify-between">
-          <h3 className="text-lg font-bold text-slate-800">
+          <h3 className="text-lg font-bold text-dequino-secondary">
             {selectedClient === 'all' ? 'Evolución de Consignación (Global)' : 'Historial de Relación Comercial'}
           </h3>
         </div>
         <div className="pt-6">
           <div className="h-72 w-full">
             {chartData.length === 0 ? (
-              <div className="h-full flex items-center justify-center text-slate-400">Sin movimientos en el periodo</div>
+              <div className="h-full flex items-center justify-center text-slate-400 text-xs font-medium">Sin movimientos en el periodo</div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(val) => `$${val}`} />
-                  <Tooltip cursor={{ fill: '#f1f5f9' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                  <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
-                  <Bar dataKey="Despachado ($)" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                  <Bar dataKey="Liquidado ($)" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} tickFormatter={(val) => `$${val}`} />
+                  <Tooltip cursor={{ fill: '#FAF8F5' }} contentStyle={{ borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }} />
+                  <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: '12px' }} />
+                  <Bar dataKey="Despachado ($)" fill="#7D9375" radius={[6, 6, 0, 0]} maxBarSize={40} />
+                  <Bar dataKey="Liquidado ($)" fill="#3D4D3A" radius={[6, 6, 0, 0]} maxBarSize={40} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -193,76 +195,76 @@ export default function ConsignacionTab({ data, formatCurrency }: { data: any, f
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Tabla 1 */}
-        <div className="bg-white border-slate-200 shadow-sm rounded-2xl flex flex-col h-full overflow-hidden">
-          <div className="border-b border-slate-100 pb-4 bg-slate-50/50">
-            <h3 className="text-sm font-bold text-slate-800">
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-full overflow-hidden">
+          <div className="border-b border-slate-100 pb-3 mb-3">
+            <h3 className="text-sm font-bold text-dequino-secondary">
               {table1Data.type === 'global_clients' ? 'Auditoría por Cliente de Consignación' : 'Historial de Transacciones'}
             </h3>
           </div>
           <div className="p-0 flex-1 overflow-x-auto max-h-[400px] overflow-y-auto">
             {table1Data.type === 'global_clients' ? (
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-slate-500 border-b border-slate-100 sticky top-0">
-                  <tr>
-                    <th className="p-3 font-semibold">Cliente</th>
-                    <th className="p-3 font-semibold text-right">Despachado</th>
-                    <th className="p-3 font-semibold text-right">Cobrado</th>
-                    <th className="p-3 font-semibold text-right">Saldo</th>
-                    <th className="p-3 font-semibold text-center">Último Corte</th>
+                <thead>
+                  <tr className="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider sticky top-0 bg-white">
+                    <th className="pb-3 pr-3">Cliente</th>
+                    <th className="pb-3 px-3 text-right">Despachado</th>
+                    <th className="pb-3 px-3 text-right">Cobrado</th>
+                    <th className="pb-3 px-3 text-right">Saldo</th>
+                    <th className="pb-3 pl-3 text-center">Último Corte</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100/70">
                   {table1Data.rows.map((c: any) => (
-                    <tr key={c.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="p-3 font-medium text-slate-700">{c.name}</td>
-                      <td className="p-3 text-right text-slate-600">{formatCurrency(c.totalDespachado)}</td>
-                      <td className="p-3 text-right font-medium text-emerald-600">{formatCurrency(c.totalLiquidado)}</td>
-                      <td className="p-3 text-right font-bold text-rose-600">{formatCurrency(c.saldoPendiente)}</td>
-                      <td className="p-3 text-center text-xs text-slate-500">
-                        {c.ultimoCorte ? new Date(c.ultimoCorte).toLocaleDateString() : '-'}
+                    <tr key={c.id} className="hover:bg-[#FAF8F5] transition-colors border-b border-slate-100/70 py-2.5">
+                      <td className="py-2.5 pr-3 font-bold text-dequino-secondary text-xs">{c.name}</td>
+                      <td className="py-2.5 px-3 text-right text-xs text-slate-600">{formatCurrency(c.totalDespachado)}</td>
+                      <td className="py-2.5 px-3 text-right text-xs font-semibold text-emerald-700">{formatCurrency(c.totalLiquidado)}</td>
+                      <td className="py-2.5 px-3 text-right text-xs font-extrabold text-rose-600">{formatCurrency(c.saldoPendiente)}</td>
+                      <td className="py-2.5 pl-3 text-center text-xs text-slate-400">
+                        {c.ultimoCorte ? new Date(c.ultimoCorte).toLocaleDateString('es-VE') : '-'}
                       </td>
                     </tr>
                   ))}
                   {table1Data.rows.length === 0 && (
-                    <tr><td colSpan={5} className="p-8 text-center text-slate-400">Sin datos</td></tr>
+                    <tr><td colSpan={5} className="py-8 text-center text-xs text-slate-400 font-medium">Sin datos</td></tr>
                   )}
                 </tbody>
               </table>
             ) : (
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-slate-500 border-b border-slate-100 sticky top-0">
-                  <tr>
-                    <th className="p-3 font-semibold">Fecha</th>
-                    <th className="p-3 font-semibold">Tipo</th>
-                    <th className="p-3 font-semibold">Ref</th>
-                    <th className="p-3 font-semibold text-center">Estado</th>
-                    <th className="p-3 font-semibold text-right">Monto</th>
+                <thead>
+                  <tr className="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider sticky top-0 bg-white">
+                    <th className="pb-3 pr-3">Fecha</th>
+                    <th className="pb-3 px-3">Tipo</th>
+                    <th className="pb-3 px-3">Ref</th>
+                    <th className="pb-3 px-3 text-center">Estado</th>
+                    <th className="pb-3 pl-3 text-right">Monto</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100/70">
                   {table1Data.rows.map((t: any) => (
-                    <tr key={t.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="p-3 text-slate-500">{new Date(t.date).toLocaleDateString()}</td>
-                      <td className="p-3 font-medium">
+                    <tr key={t.id} className="hover:bg-[#FAF8F5] transition-colors border-b border-slate-100/70 py-2.5">
+                      <td className="py-2.5 pr-3 text-xs text-slate-500">{new Date(t.date).toLocaleDateString('es-VE')}</td>
+                      <td className="py-2.5 px-3 font-medium">
                         {t.type === 'Pedido' ? (
-                          <span className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded text-xs flex items-center gap-1 w-max"><Package className="w-3 h-3"/> {t.type}</span>
+                          <span className="text-dequino-primary bg-[#EEF3EC] px-2 py-0.5 rounded-lg text-xs font-bold flex items-center gap-1 w-max"><Package className="w-3 h-3"/> {t.type}</span>
                         ) : (
-                          <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded text-xs flex items-center gap-1 w-max"><Receipt className="w-3 h-3"/> {t.type}</span>
+                          <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg text-xs font-bold flex items-center gap-1 w-max"><Receipt className="w-3 h-3"/> {t.type}</span>
                         )}
                       </td>
-                      <td className="p-3 text-slate-600 font-mono text-xs">{t.ref}</td>
-                      <td className="p-3 text-center">
-                        <span className={`px-2 py-0.5 rounded text-xs font-semibold ${t.status === 'abierto' || t.status === 'pendiente' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>
+                      <td className="py-2.5 px-3 text-slate-600 font-mono text-xs">{t.ref}</td>
+                      <td className="py-2.5 px-3 text-center">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${t.status === 'abierto' || t.status === 'pendiente' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'}`}>
                           {t.status.toUpperCase()}
                         </span>
                       </td>
-                      <td className={`p-3 text-right font-bold ${t.type === 'Corte' ? 'text-emerald-600' : 'text-slate-700'}`}>
+                      <td className={`py-2.5 pl-3 text-right font-extrabold text-xs ${t.type === 'Corte' ? 'text-emerald-700' : 'text-slate-800'}`}>
                         {formatCurrency(t.total)}
                       </td>
                     </tr>
                   ))}
                   {table1Data.rows.length === 0 && (
-                    <tr><td colSpan={5} className="p-8 text-center text-slate-400">Sin historial</td></tr>
+                    <tr><td colSpan={5} className="py-8 text-center text-xs text-slate-400 font-medium">Sin historial</td></tr>
                   )}
                 </tbody>
               </table>
@@ -271,69 +273,69 @@ export default function ConsignacionTab({ data, formatCurrency }: { data: any, f
         </div>
 
         {/* Tabla 2 */}
-        <div className="bg-white border-slate-200 shadow-sm rounded-2xl flex flex-col h-full overflow-hidden">
-          <div className="border-b border-slate-100 pb-4 bg-slate-50/50">
-            <h3 className="text-sm font-bold text-slate-800">
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-full overflow-hidden">
+          <div className="border-b border-slate-100 pb-3 mb-3">
+            <h3 className="text-sm font-bold text-dequino-secondary">
               {table2Data.type === 'global_products' ? 'Rendimiento de Productos en Consignación' : 'Inventario Actual en Tienda'}
             </h3>
           </div>
           <div className="p-0 flex-1 overflow-x-auto max-h-[400px] overflow-y-auto">
             {table2Data.type === 'global_products' ? (
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-slate-500 border-b border-slate-100 sticky top-0">
-                  <tr>
-                    <th className="p-3 font-semibold">PT</th>
-                    <th className="p-3 font-semibold">Producto</th>
-                    <th className="p-3 font-semibold text-center">Desp.</th>
-                    <th className="p-3 font-semibold text-center">Cob.</th>
-                    <th className="p-3 font-semibold text-center">En Stock</th>
-                    <th className="p-3 font-semibold text-right">% Rot</th>
+                <thead>
+                  <tr className="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider sticky top-0 bg-white">
+                    <th className="pb-3 pr-3">PT</th>
+                    <th className="pb-3 px-3">Producto</th>
+                    <th className="pb-3 px-3 text-center">Desp.</th>
+                    <th className="pb-3 px-3 text-center">Cob.</th>
+                    <th className="pb-3 px-3 text-center">En Stock</th>
+                    <th className="pb-3 pl-3 text-right">% Rot</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100/70">
                   {table2Data.rows.map((p: any) => {
                     const rotation = p.despachados > 0 ? (p.cobrados / p.despachados) * 100 : 0;
                     return (
-                      <tr key={p.pt} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="p-3 font-bold text-slate-700">{p.pt}</td>
-                        <td className="p-3 text-slate-600 truncate max-w-[150px]">{p.name}</td>
-                        <td className="p-3 text-center text-slate-600">{p.despachados}</td>
-                        <td className="p-3 text-center font-medium text-emerald-600">{p.cobrados}</td>
-                        <td className="p-3 text-center font-medium text-indigo-600">{p.enStock}</td>
-                        <td className="p-3 text-right text-xs font-semibold text-slate-500">
+                      <tr key={p.pt} className="hover:bg-[#FAF8F5] transition-colors border-b border-slate-100/70 py-2.5">
+                        <td className="py-2.5 pr-3 font-mono text-xs text-slate-400">{p.pt}</td>
+                        <td className="py-2.5 px-3 text-xs font-bold text-dequino-secondary truncate max-w-[150px]">{p.name}</td>
+                        <td className="py-2.5 px-3 text-center text-xs text-slate-600">{p.despachados}</td>
+                        <td className="py-2.5 px-3 text-center text-xs font-semibold text-emerald-700">{p.cobrados}</td>
+                        <td className="py-2.5 px-3 text-center text-xs font-semibold text-dequino-primary">{p.enStock}</td>
+                        <td className="py-2.5 pl-3 text-right text-xs font-bold text-slate-700">
                           {rotation.toFixed(0)}%
                         </td>
                       </tr>
                     )
                   })}
                   {table2Data.rows.length === 0 && (
-                    <tr><td colSpan={6} className="p-8 text-center text-slate-400">Sin datos</td></tr>
+                    <tr><td colSpan={6} className="py-8 text-center text-xs text-slate-400 font-medium">Sin datos</td></tr>
                   )}
                 </tbody>
               </table>
             ) : (
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-slate-500 border-b border-slate-100 sticky top-0">
-                  <tr>
-                    <th className="p-3 font-semibold">PT</th>
-                    <th className="p-3 font-semibold">Producto</th>
-                    <th className="p-3 font-semibold text-center">En Poder</th>
-                    <th className="p-3 font-semibold text-right">Valor Unit.</th>
-                    <th className="p-3 font-semibold text-right">Valor Total ($)</th>
+                <thead>
+                  <tr className="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider sticky top-0 bg-white">
+                    <th className="pb-3 pr-3">PT</th>
+                    <th className="pb-3 px-3">Producto</th>
+                    <th className="pb-3 px-3 text-center">En Poder</th>
+                    <th className="pb-3 px-3 text-right">Valor Unit.</th>
+                    <th className="pb-3 pl-3 text-right">Valor Total ($)</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100/70">
                   {table2Data.rows.map((i: any) => (
-                    <tr key={i.pt} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="p-3 font-bold text-slate-700">{i.pt}</td>
-                      <td className="p-3 text-slate-600 truncate max-w-[200px]">{i.name}</td>
-                      <td className="p-3 text-center font-black text-indigo-600">{i.unidades}</td>
-                      <td className="p-3 text-right text-slate-500">{formatCurrency(i.precio)}</td>
-                      <td className="p-3 text-right font-bold text-rose-600">{formatCurrency(i.valor)}</td>
+                    <tr key={i.pt} className="hover:bg-[#FAF8F5] transition-colors border-b border-slate-100/70 py-2.5">
+                      <td className="py-2.5 pr-3 font-mono text-xs text-slate-400">{i.pt}</td>
+                      <td className="py-2.5 px-3 text-xs font-bold text-dequino-secondary truncate max-w-[200px]">{i.name}</td>
+                      <td className="py-2.5 px-3 text-center text-xs font-extrabold text-slate-800">{i.unidades}</td>
+                      <td className="py-2.5 px-3 text-right text-xs text-slate-500">{formatCurrency(i.precio)}</td>
+                      <td className="py-2.5 pl-3 text-right text-xs font-bold text-rose-600">{formatCurrency(i.valor)}</td>
                     </tr>
                   ))}
                   {table2Data.rows.length === 0 && (
-                    <tr><td colSpan={5} className="p-8 text-center text-slate-400">Cliente sin inventario actualmente</td></tr>
+                    <tr><td colSpan={5} className="py-8 text-center text-xs text-slate-400 font-medium">Cliente sin inventario actualmente</td></tr>
                   )}
                 </tbody>
               </table>

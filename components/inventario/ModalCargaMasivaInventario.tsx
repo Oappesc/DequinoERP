@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Upload, FileSpreadsheet, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Upload, FileSpreadsheet, AlertCircle, CheckCircle2, X } from 'lucide-react';
 import Papa from 'papaparse';
 import { bulkInsertProducts } from '@/lib/actions_inventario';
 
@@ -80,7 +80,7 @@ export default function ModalCargaMasivaInventario({ isOpen, onClose, onSuccess 
   };
 
   const downloadTemplate = () => {
-    const csvContent = "pt,nombre,descripcion,tamano_valor,tamano_unidad,precio_cadena,precio_distribuidor\\nPT-001,Champu Mascotas,Pelaje Blanco,240,mL,10.50,8.00";
+    const csvContent = "pt,nombre,descripcion,tamano_valor,tamano_unidad,precio_cadena,precio_distribuidor\nPT-001,Champu Mascotas,Pelaje Blanco,240,mL,10.50,8.00";
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -93,24 +93,32 @@ export default function ModalCargaMasivaInventario({ isOpen, onClose, onSuccess 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
-        <h2 className="text-xl font-bold text-slate-800 mb-4">Carga Masiva de Inventario</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden border border-dequino-tertiary/40 flex flex-col">
+        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-[#FAF8F5]">
+          <div>
+            <span className="text-[10px] font-semibold tracking-widest text-[#B38E5D] uppercase mb-0.5 block">CATÁLOGO</span>
+            <h2 className="text-xl font-bold text-dequino-secondary">Carga Masiva de Inventario</h2>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
         
-        <div className="space-y-4">
-          <p className="text-sm text-slate-500">
+        <div className="p-6 space-y-4">
+          <p className="text-xs text-slate-500">
             Sube un archivo CSV con tus productos. El sistema los registrará automáticamente como productos bajo pedido.
           </p>
 
           <button 
             onClick={downloadTemplate}
-            className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+            className="text-xs font-semibold text-dequino-primary hover:text-dequino-secondary hover:underline flex items-center gap-1.5 transition-colors"
           >
             <FileSpreadsheet className="w-4 h-4" /> Descargar plantilla CSV de ejemplo
           </button>
 
           <div 
-            className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:bg-slate-50 transition-colors cursor-pointer"
+            className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:bg-[#FAF8F5] hover:border-dequino-primary transition-all cursor-pointer"
             onClick={() => fileInputRef.current?.click()}
           >
             <input 
@@ -122,38 +130,44 @@ export default function ModalCargaMasivaInventario({ isOpen, onClose, onSuccess 
             />
             
             {successCount !== null ? (
-              <div className="flex flex-col items-center text-emerald-600">
-                <CheckCircle2 className="w-10 h-10 mb-2" />
-                <p className="font-medium">¡{successCount} productos cargados con éxito!</p>
+              <div className="flex flex-col items-center text-emerald-700">
+                <CheckCircle2 className="w-10 h-10 mb-2 text-emerald-600" />
+                <p className="font-bold text-sm">¡{successCount} productos cargados con éxito!</p>
               </div>
             ) : file ? (
-              <div className="flex flex-col items-center text-blue-600">
+              <div className="flex flex-col items-center text-dequino-primary">
                 <FileSpreadsheet className="w-10 h-10 mb-2" />
-                <p className="font-medium">{file.name}</p>
-                <p className="text-xs text-slate-500 mt-1">{(file.size / 1024).toFixed(1)} KB</p>
+                <p className="font-bold text-sm text-dequino-secondary">{file.name}</p>
+                <p className="text-xs text-slate-400 mt-1">{(file.size / 1024).toFixed(1)} KB</p>
               </div>
             ) : (
               <div className="flex flex-col items-center text-slate-500">
-                <Upload className="w-10 h-10 mb-2 text-slate-400" />
-                <p className="font-medium text-slate-700">Haz clic para subir tu CSV</p>
-                <p className="text-xs mt-1">Formato requerido: .csv</p>
+                <div className="w-12 h-12 bg-[#EEF3EC] text-dequino-secondary rounded-2xl flex items-center justify-center mb-3">
+                  <Upload className="w-6 h-6" />
+                </div>
+                <p className="font-bold text-xs text-slate-700">Haz clic para subir tu CSV</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">Formato requerido: .csv</p>
               </div>
             )}
           </div>
 
           {error && (
-            <div className="bg-rose-50 text-rose-600 p-3 rounded-lg text-sm flex items-start gap-2">
-              <AlertCircle className="w-5 h-5 shrink-0" />
+            <div className="bg-rose-50 text-rose-700 border border-rose-100 p-3 rounded-2xl text-xs flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <p>{error}</p>
             </div>
           )}
         </div>
 
-        <div className="flex justify-end gap-3 mt-6">
-          <button onClick={onClose} disabled={loading} className="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200">
+        <div className="p-6 pt-0 flex justify-end gap-3 border-t border-slate-100 mt-2">
+          <button onClick={onClose} disabled={loading} className="px-5 py-2.5 rounded-2xl text-xs font-medium text-slate-500 hover:bg-slate-100 transition-colors">
             Cancelar
           </button>
-          <button onClick={handleUpload} disabled={!file || loading || successCount !== null} className="px-4 py-2 rounded-xl text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50">
+          <button 
+            onClick={handleUpload} 
+            disabled={!file || loading || successCount !== null} 
+            className="px-5 py-2.5 rounded-2xl text-xs font-medium text-white bg-dequino-primary hover:bg-[#6C8264] shadow-md shadow-dequino-primary/20 transition-all disabled:opacity-50"
+          >
             {loading ? 'Procesando...' : 'Subir e Importar'}
           </button>
         </div>

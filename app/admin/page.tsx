@@ -25,12 +25,12 @@ type AdminOrder = {
 };
 
 const statusClasses: Record<OrderStatus, string> = {
-  registrado: 'bg-yellow-100 text-yellow-800',
-  por_procesar: 'bg-blue-100 text-blue-800',
-  procesado: 'bg-blue-900 text-white',
-  pedido_entregado: 'bg-violet-100 text-violet-800',
-  pago_en_revision: 'bg-orange-100 text-orange-800',
-  pagado: 'bg-green-100 text-green-800',
+  registrado: 'bg-amber-50 text-amber-700 border border-amber-200/60',
+  por_procesar: 'bg-blue-50 text-blue-700 border border-blue-200/60',
+  procesado: 'bg-emerald-50 text-emerald-700 border border-emerald-200/60',
+  pedido_entregado: 'bg-purple-50 text-purple-700 border border-purple-200/60',
+  pago_en_revision: 'bg-orange-50 text-orange-700 border border-orange-200/60',
+  pagado: 'bg-emerald-100 text-emerald-800 border border-emerald-200/80',
 };
 
 
@@ -378,82 +378,89 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-6">
+    <div className="min-h-screen bg-dequino-neutral p-4 md:p-6 font-sans font-lato">
       <div className="mx-auto max-w-7xl space-y-6">
-        <header className="flex flex-col justify-between gap-3 rounded-2xl bg-slate-900 p-5 text-white shadow-lg md:flex-row md:items-center">
+        <header className="bg-dequino-secondary text-white rounded-3xl p-6 shadow-sm flex flex-col justify-center mb-6">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-300">Administraci�n</p>
-            <h1 className="mt-2 text-2xl font-bold">Dashboard de ventas</h1>
+            <p className="text-xs font-semibold tracking-widest text-[#B38E5D] uppercase mb-1">ADMINISTRACIÓN</p>
+            <h1 className="text-2xl font-extrabold text-white leading-tight">Dashboard de ventas</h1>
           </div>
           <CurrencySwitcher isAdmin={true} />
         </header>
 
-        <section className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-sm text-slate-500">{getMesLabel()}</p>
-            <p className="mt-2 text-3xl font-bold text-slate-900">{formatCurrency(metrics.totalMes)}</p>
+        <section className="grid gap-4 md:grid-cols-3 mb-6">
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{getMesLabel()}</p>
+            <p className="text-3xl font-extrabold text-dequino-secondary">{formatCurrency(metrics.totalMes)}</p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-sm text-slate-500">Total cobrado</p>
-            <p className="mt-2 text-3xl font-bold text-emerald-600">{formatCurrency(metrics.totalCobrado)}</p>
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Total cobrado</p>
+            <p className="text-3xl font-extrabold text-dequino-primary">{formatCurrency(metrics.totalCobrado)}</p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-sm text-slate-500">Pedidos pendientes</p>
-            <p className="mt-2 text-3xl font-bold text-violet-600">{metrics.pedidosPendientes}</p>
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pedidos pendientes</p>
+            <div className="flex items-center gap-2.5">
+              <p className="text-3xl font-extrabold text-slate-800">{metrics.pedidosPendientes}</p>
+              {metrics.pedidosPendientes > 0 && (
+                <span className="rounded-full bg-amber-50 border border-amber-200/60 text-amber-800 text-[10px] font-bold px-2 py-0.5">
+                  Por gestionar
+                </span>
+              )}
+            </div>
           </div>
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
           <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <h2 className="text-lg font-semibold text-slate-800">Control de pedidos</h2>
+            <h2 className="text-lg font-bold text-dequino-secondary">Control de pedidos</h2>
             
-            <div className="flex bg-slate-100 p-1 rounded-xl">
+            <div className="bg-[#F4F1EA] p-1 rounded-2xl flex gap-1 items-center">
                   <button 
                     onClick={() => { setTab('por_procesar'); setSelectedStatus('todos'); }}
-                    className={`flex items-center px-4 py-2 rounded-lg text-sm font-semibold transition ${tab === 'por_procesar' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+                    className={`py-1.5 px-3.5 rounded-xl text-xs flex items-center gap-1.5 transition-all ${tab === 'por_procesar' ? 'bg-white text-dequino-secondary font-bold shadow-sm' : 'text-slate-500 hover:text-slate-700 font-medium'}`}
                   >
-                    Por Procesar
+                    <span>Por Procesar</span>
                     {countRegistrado > 0 && (
-                      <span className="ml-2 inline-flex items-center justify-center rounded-full bg-orange-500 px-2 py-0.5 text-xs font-bold text-white shadow-sm animate-pulse">
+                      <span className="rounded-full px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 animate-pulse">
                         {countRegistrado}
                       </span>
                     )}
                   </button>
                   <button 
-                  onClick={() => { setTab('por_cobrar'); setSelectedStatus('todos'); }}
-                  className={`flex items-center px-4 py-2 rounded-lg text-sm font-semibold transition ${tab === 'por_cobrar' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
-                >
-                  Por Cobrar
-                  {(() => {
-                    const atrasados = orders.filter(p => p.estado !== 'pagado' && esAtrasado(p)).length;
-                    return atrasados > 0 ? (
-                      <span className="ml-2 inline-flex items-center justify-center rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white shadow-sm animate-pulse">
-                        {atrasados}
-                      </span>
-                    ) : null;
-                  })()}
-                </button>
-                <button 
-                  onClick={() => { setTab('pagados'); setSelectedStatus('todos'); }}
-                  className={`flex items-center px-4 py-2 rounded-lg text-sm font-semibold transition ${tab === 'pagados' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
-                >
-                  Pagados
-                  {(() => {
-                    const pagados = orders.filter(p => p.estado === 'pagado' && p.created_at.startsWith(selectedMonth)).length;
-                    return pagados > 0 ? (
-                      <span className="ml-2 inline-flex items-center justify-center rounded-full bg-emerald-500 px-2 py-0.5 text-xs font-bold text-white shadow-sm">
-                        {pagados}
-                      </span>
-                    ) : null;
-                  })()}
-                </button>
-              </div>
+                    onClick={() => { setTab('por_cobrar'); setSelectedStatus('todos'); }}
+                    className={`py-1.5 px-3.5 rounded-xl text-xs flex items-center gap-1.5 transition-all ${tab === 'por_cobrar' ? 'bg-white text-dequino-secondary font-bold shadow-sm' : 'text-slate-500 hover:text-slate-700 font-medium'}`}
+                  >
+                    <span>Por Cobrar</span>
+                    {(() => {
+                      const atrasados = orders.filter(p => p.estado !== 'pagado' && esAtrasado(p)).length;
+                      return atrasados > 0 ? (
+                        <span className="rounded-full px-2 py-0.5 text-[10px] font-bold bg-rose-100 text-rose-800 animate-pulse">
+                          {atrasados}
+                        </span>
+                      ) : null;
+                    })()}
+                  </button>
+                  <button 
+                    onClick={() => { setTab('pagados'); setSelectedStatus('todos'); }}
+                    className={`py-1.5 px-3.5 rounded-xl text-xs flex items-center gap-1.5 transition-all ${tab === 'pagados' ? 'bg-white text-dequino-secondary font-bold shadow-sm' : 'text-slate-500 hover:text-slate-700 font-medium'}`}
+                  >
+                    <span>Pagados</span>
+                    {(() => {
+                      const pagados = orders.filter(p => p.estado === 'pagado' && p.created_at.startsWith(selectedMonth)).length;
+                      return pagados > 0 ? (
+                        <span className="rounded-full px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                          {pagados}
+                        </span>
+                      ) : null;
+                    })()}
+                  </button>
+                </div>
 
             <div className="flex flex-wrap gap-2">
               <select
                 value={selectedStatus}
                 onChange={(event) => setSelectedStatus(event.target.value as 'todos' | OrderStatus)}
-                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-sky-500"
+                className="rounded-2xl border border-slate-200 bg-[#FCFCFA] px-3.5 py-2 text-xs font-medium text-slate-700 outline-none focus:border-dequino-primary focus:ring-2 focus:ring-dequino-primary/20 transition-all"
               >
                 <option value="todos">Todos los estados</option>
                 {allowedStatuses.map(status => (
@@ -464,7 +471,7 @@ export default function AdminPage() {
               <select
                 value={selectedMonth}
                 onChange={(event) => setSelectedMonth(event.target.value)}
-                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-sky-500"
+                className="rounded-2xl border border-slate-200 bg-[#FCFCFA] px-3.5 py-2 text-xs font-medium text-slate-700 outline-none focus:border-dequino-primary focus:ring-2 focus:ring-dequino-primary/20 transition-all"
               >
                 <option value="todos">Todos los meses</option>
                 {months.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
@@ -477,16 +484,16 @@ export default function AdminPage() {
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200">
               <thead>
-                <tr className="text-left text-sm text-slate-600">
-                  <th className="pb-3 font-medium">Pedido</th>
-                  <th className="pb-3 font-medium">Vendedor</th>
-                  <th className="pb-3 font-medium">Cliente</th>
-                  <th className="pb-3 font-medium">Fecha</th>
-                  <th className="pb-3 font-medium">Total</th>
-                    {tab === 'por_cobrar' && <th className="pb-3 font-medium">Crédito</th>}
-                    {tab === 'por_cobrar' && <th className="pb-3 font-medium">Fecha Tope</th>}
-                  <th className="pb-3 font-medium">Estado</th>
-                  <th className="pb-3 font-medium">Acciones</th>
+                <tr className="text-left text-[11px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                  <th className="pb-3">Pedido</th>
+                  <th className="pb-3">Vendedor</th>
+                  <th className="pb-3">Cliente</th>
+                  <th className="pb-3">Fecha</th>
+                  <th className="pb-3">Total</th>
+                    {tab === 'por_cobrar' && <th className="pb-3">Crédito</th>}
+                    {tab === 'por_cobrar' && <th className="pb-3">Fecha Tope</th>}
+                  <th className="pb-3">Estado</th>
+                  <th className="pb-3">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -496,7 +503,7 @@ export default function AdminPage() {
                   <tr><td colSpan={tab === "por_cobrar" ? 9 : 7} className="py-8 text-center text-slate-500">No hay pedidos para mostrar en esta vista.</td></tr>
                 ) : (
                   filteredOrders.map((order) => (
-                    <tr key={order.id} className="text-sm text-slate-700 hover:bg-slate-50 cursor-pointer" onClick={() => handleSelectPedido(order)}>
+                    <tr key={order.id} className="text-sm text-slate-700 hover:bg-[#FAF8F5] transition-colors py-3 border-b border-slate-100/60 cursor-pointer" onClick={() => handleSelectPedido(order)}>
                       <td className="py-3 pr-4 font-medium text-slate-900 flex items-center">
                         {order.estado === 'registrado' && !viewedRegistrados.has(order.id) && (
                           <span className="mr-2 inline-flex relative h-2.5 w-2.5">
@@ -537,17 +544,17 @@ export default function AdminPage() {
                       <td className="py-3">
                         <div className="flex flex-wrap gap-2">
                           {order.estado === 'registrado' && (
-                            <button onClick={(e) => handleStatusChange(e, order.id, 'por_procesar')} className="rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-blue-700">
+                            <button onClick={(e) => handleStatusChange(e, order.id, 'por_procesar')} className="rounded-xl bg-dequino-primary hover:bg-[#6C8264] px-2.5 py-1.5 text-xs font-medium text-white transition-all shadow-sm">
                               Por procesar
                             </button>
                           )}
                           {order.estado === 'por_procesar' && (
-                            <button onClick={(e) => handleStatusChange(e, order.id, 'procesado')} className="rounded-lg bg-sky-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-sky-700">
+                            <button onClick={(e) => handleStatusChange(e, order.id, 'procesado')} className="rounded-xl bg-dequino-secondary hover:bg-[#2F3C2C] px-2.5 py-1.5 text-xs font-medium text-white transition-all shadow-sm">
                               Procesado
                             </button>
                           )}
                           {order.estado === 'procesado' && (
-                            <button onClick={(e) => handleStatusChange(e, order.id, 'pedido_entregado')} className="rounded-lg bg-violet-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-violet-700">
+                            <button onClick={(e) => handleStatusChange(e, order.id, 'pedido_entregado')} className="rounded-xl bg-amber-600 hover:bg-amber-700 px-2.5 py-1.5 text-xs font-medium text-white transition-all shadow-sm">
                               Pedido entregado
                             </button>
                           )}
@@ -570,12 +577,12 @@ export default function AdminPage() {
       {/* Modal */}
       {selectedPedido && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto" onClick={() => setSelectedPedido(null)}>
-          <div className="w-full max-w-4xl rounded-2xl bg-white p-6 shadow-2xl mt-auto mb-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-4xl rounded-3xl bg-white p-6 shadow-2xl mt-auto mb-auto border border-dequino-tertiary/40" onClick={(e) => e.stopPropagation()}>
             <div className="space-y-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-sky-600">Detalle del Pedido</p>
-                  <h2 className="text-2xl font-black mt-1 text-slate-900">{selectedPedido.correlativo}</h2>
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#B38E5D]">Detalle del Pedido</p>
+                  <h2 className="text-2xl font-black mt-1 text-dequino-secondary">{selectedPedido.correlativo}</h2>
                   <p className="text-sm text-slate-500 mt-1">
                     {new Date(selectedPedido.created_at).toLocaleString('es-VE')} • Vendedor: <span className="font-semibold">{selectedPedido.vendedor?.nombre ?? 'Desconocido'}</span>
                   </p>
@@ -747,21 +754,21 @@ export default function AdminPage() {
                   {/* Actions */}
                   <div className="flex justify-between items-center pt-4 border-t w-full">
                     <div className="flex gap-2">
-                      <button onClick={handleDownloadExcel} disabled={downloading} className="px-4 py-2.5 rounded-xl border border-sky-200 bg-sky-50 text-sky-700 font-bold hover:bg-sky-100 transition disabled:opacity-50">
+                      <button onClick={handleDownloadExcel} disabled={downloading} className="px-4 py-2.5 rounded-2xl border border-dequino-tertiary/60 bg-[#FAF8F5] text-dequino-secondary font-semibold hover:bg-slate-100 transition disabled:opacity-50 text-sm">
                         {downloading ? 'Generando...' : 'Descargar Excel'}
                       </button>
-                      <button onClick={handlePrint} className="px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-bold hover:bg-slate-100 transition">
+                      <button onClick={handlePrint} className="px-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-700 font-semibold hover:bg-slate-50 transition text-sm">
                         Imprimir
                       </button>
                     </div>
                     <div className="flex gap-3">
-                      <button onClick={() => setSelectedPedido(null)} className="px-5 py-2.5 rounded-xl border font-bold text-slate-600 hover:bg-slate-50">
+                      <button onClick={() => setSelectedPedido(null)} className="px-5 py-2.5 rounded-2xl border border-slate-200 font-semibold text-slate-600 hover:bg-slate-50 text-sm">
                         Cancelar
                       </button>
                     <button 
                       onClick={() => void handleSaveOrder()} 
                       disabled={savingOrder || itemsEdit.length === 0}
-                      className="px-5 py-2.5 rounded-xl bg-sky-600 text-white font-bold hover:bg-sky-700 disabled:opacity-50"
+                      className="px-5 py-2.5 rounded-2xl bg-dequino-primary text-white font-medium hover:bg-[#6C8264] shadow-md shadow-dequino-primary/20 transition-all disabled:opacity-50 text-sm"
                     >
                       {savingOrder ? 'Guardando...' : (selectedPedido.cliente?.razon_social?.includes('PENDIENTE RIF') ? 'Registrar Cliente y Guardar Cambios' : 'Guardar Cambios')}
                     </button>
