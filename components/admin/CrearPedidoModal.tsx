@@ -168,16 +168,19 @@ export default function CrearPedidoModal({ isOpen, onClose, onCreated, sellers: 
                 {/* Asesor */}
                 <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Asignar a Asesor / Vendedor *</h3>
+                  <div className="relative inline-block w-full">
                   <select 
                     value={selectedSeller} 
                     onChange={(e) => setSelectedSeller(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl p-3 focus:ring-2 focus:ring-dequino-primary focus:border-dequino-primary outline-none"
+                    className="w-full appearance-none bg-[#FCFCFA] border border-slate-200 text-slate-700 font-medium text-xs rounded-2xl px-4 py-2.5 pr-8 focus:border-dequino-primary focus:ring-2 focus:ring-dequino-primary/20 outline-none transition-all cursor-pointer shadow-sm"
                   >
-                    <option value="">-- Seleccionar Asesor --</option>
+                    <option className="bg-white text-slate-700 py-1.5" value="">-- Seleccionar Asesor --</option>
                     {sellers.map((v: any) => (
-                      <option key={v.id} value={v.id}>{v.nombre} {v.cedula ? `(${v.cedula})` : ''}</option>
+                      <option className="bg-white text-slate-700 py-1.5" key={v.id} value={v.id}>{v.nombre} {v.cedula ? `(${v.cedula})` : ''}</option>
                     ))}
                   </select>
+                    <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-dequino-secondary w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  </div>
                 </div>
 
                 {/* Cliente */}

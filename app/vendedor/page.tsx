@@ -138,9 +138,7 @@ const hasValidItems = cartItems.length > 0;
         <header className="flex flex-col gap-4">
           <div className="bg-dequino-secondary text-white rounded-3xl p-3 flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="bg-white rounded-2xl w-14 h-12 flex items-center justify-center p-1.5 shrink-0 text-dequino-secondary font-black text-xl shadow-inner">
-                DQ
-              </div>
+              <img src="/logo-dequino.png" alt="Dequino Logo" className="h-12 w-auto object-contain shrink-0 drop-shadow-sm" />
               <div>
                 <p className="text-base font-bold text-white leading-tight">{sellerName}</p>
                 <div className="bg-white/15 text-white/90 text-[10px] font-semibold px-2 py-0.5 rounded-md inline-flex items-center gap-1.5 mt-0.5">

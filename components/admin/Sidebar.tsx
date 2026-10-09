@@ -59,9 +59,7 @@ export default function Sidebar() {
       {/* Mobile Top Bar */}
       <div className="lg:hidden flex items-center justify-between p-4 bg-dequino-secondary text-white sticky top-0 z-40 shadow-sm shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-2xl bg-gradient-to-br from-[#B38E5D] to-[#8C6D45] flex items-center justify-center font-bold text-xs text-white shadow-sm">
-            DQ
-          </div>
+          <img src="/logo-dequino.png" alt="Dequino Logo" className="h-8 w-auto object-contain drop-shadow-sm shrink-0" />
           <span className="font-bold tracking-wide">Dequino ERP - Admin</span>
         </div>
         <button 
@@ -88,9 +86,7 @@ export default function Sidebar() {
         `}
       >
         <div className={`hidden lg:flex items-center px-4 py-6 border-b border-white/10 relative transition-all duration-300 ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
-          <div className="w-10 h-10 shrink-0 rounded-2xl bg-gradient-to-br from-[#B38E5D] to-[#8C6D45] text-white font-bold shadow-sm flex items-center justify-center text-lg">
-            DQ
-          </div>
+          <img src="/logo-dequino.png" alt="Dequino Logo" className="h-10 w-auto object-contain drop-shadow-sm shrink-0" />
           <div className={`transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'}`}>
             <h2 className="font-bold text-white text-lg leading-tight">Distribuidora</h2>
             <p className="text-xs font-semibold text-[#B38E5D] uppercase tracking-widest">Admin Panel</p>

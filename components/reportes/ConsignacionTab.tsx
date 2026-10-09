@@ -104,16 +104,19 @@ export default function ConsignacionTab({ data, formatCurrency }: { data: any, f
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">FILTRADO DE DATOS</span>
           <h2 className="font-bold text-dequino-secondary text-base">Reporte de Consignación</h2>
         </div>
+        <div className="relative inline-block">
         <select 
           value={selectedClient} 
           onChange={(e) => setSelectedClient(e.target.value)}
-          className="rounded-2xl border border-slate-200 bg-[#FCFCFA] px-4 py-2.5 text-xs font-medium text-slate-700 outline-none focus:border-dequino-primary focus:ring-2 focus:ring-dequino-primary/20 transition-all cursor-pointer"
+          className="appearance-none bg-[#FCFCFA] border border-slate-200 text-slate-700 font-medium text-xs rounded-2xl px-4 py-2.5 pr-8 focus:border-dequino-primary focus:ring-2 focus:ring-dequino-primary/20 outline-none transition-all cursor-pointer shadow-sm"
         >
           <option value="all">Todos los clientes (Consolidado)</option>
           {data.clientes.map((c: any) => (
-            <option key={c.id} value={c.id}>{c.razon_social}</option>
+            <option className="bg-white text-slate-700 py-1.5" key={c.id} value={c.id}>{c.razon_social}</option>
           ))}
         </select>
+          <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-dequino-secondary w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+        </div>
       </div>
 
       {/* KPIs Superiores */}

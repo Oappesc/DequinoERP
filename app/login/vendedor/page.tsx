@@ -26,9 +26,7 @@ export default function SellerLoginPage() {
       
       {/* Cabecera */}
       <div className="flex flex-col items-center mt-8">
-        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#B38E5D] to-[#8C6D45] flex items-center justify-center shadow-lg mb-4 text-white font-black text-2xl tracking-tighter">
-          DQ
-        </div>
+        <img src="/logo-dequino.png" alt="Dequino Logo" className="h-16 w-auto object-contain mx-auto mb-2 drop-shadow-sm" />
         <p className="text-xs font-semibold tracking-widest text-[#B38E5D] uppercase mb-1">Portal Comercial</p>
         <h1 className="text-2xl font-bold text-dequino-secondary flex gap-2">
           Dequino <span className="font-normal text-dequino-primary">ERP</span>
