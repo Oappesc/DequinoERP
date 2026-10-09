@@ -31,7 +31,7 @@ export default function CrearPedidoModal({ isOpen, onClose, onCreated, sellers: 
   const [rifImagePreview, setRifImagePreview] = useState('');
   const [productSearch, setProductSearch] = useState('');
   const [cart, setCart] = useState<Record<string, string>>({});
-  const [docType, setDocType] = useState<'factura' | 'nota'>('factura');
+  const [docType, setDocType] = useState<'factura' | 'nota_entrega'>('factura');
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -286,7 +286,7 @@ export default function CrearPedidoModal({ isOpen, onClose, onCreated, sellers: 
                   <div>
                     <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">TIPO DE DOCUMENTO</label>
                     <div className="flex gap-2 bg-slate-50 p-1.5 rounded-2xl">
-                      <button onClick={() => setDocType('nota')} className={`flex-1 py-2 text-sm font-medium rounded-xl transition-colors ${docType === 'nota' ? 'bg-white text-dequino-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Nota de entrega</button>
+                      <button onClick={() => setDocType('nota_entrega')} className={`flex-1 py-2 text-sm font-medium rounded-xl transition-colors ${docType === 'nota_entrega' ? 'bg-white text-dequino-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Nota de entrega</button>
                       <button onClick={() => setDocType('factura')} className={`flex-1 py-2 text-sm font-medium rounded-xl transition-colors ${docType === 'factura' ? 'bg-white text-dequino-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>✓ Factura</button>
                     </div>
                   </div>
