@@ -131,7 +131,7 @@ export async function getReportData(from?: string, to?: string): Promise<{ data?
       const isPagado = order.estado === 'pagado';
       if (isPagado) {
         pagadoTotal += order.total;
-      } else if (order.estado !== 'registrado' && order.estado !== 'por_procesar') {
+      } else if (order.estado !== 'registrado' && order.estado !== 'en_proceso') {
         porCobrarTotal += order.total;
       }
 
@@ -157,7 +157,7 @@ export async function getReportData(from?: string, to?: string): Promise<{ data?
         
         if (isPagado) {
           clientStats[cliente.id].paidSales += order.total;
-        } else if (order.estado === 'pedido_entregado' || order.estado === 'pago_en_revision') {
+        } else if (order.estado === 'entregado' || order.estado === 'en_revision') {
           clientStats[cliente.id].pendingSales += order.total;
         }
       }
@@ -182,7 +182,7 @@ export async function getReportData(from?: string, to?: string): Promise<{ data?
         
         if (isPagado) {
           vendorStats[vendedor.id].paidSales += order.total;
-        } else if (order.estado === 'pedido_entregado' || order.estado === 'pago_en_revision') {
+        } else if (order.estado === 'entregado' || order.estado === 'en_revision') {
           vendorStats[vendedor.id].pendingSales += order.total;
         }
       }

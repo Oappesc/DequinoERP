@@ -1,12 +1,6 @@
 export type DocumentoTipo = 'factura' | 'nota_entrega';
 
-export type PedidoEstado =
-  | 'registrado'
-  | 'por_procesar'
-  | 'procesado'
-  | 'pedido_entregado'
-  | 'pago_en_revision'
-  | 'pagado';
+export type PedidoEstado = 'registrado' | 'en_proceso' | 'entregado' | 'en_revision' | 'pagado';
 
 type SupabaseTable = {
   Row: Record<string, unknown>;
@@ -184,3 +178,4 @@ export type Database = {
     };
   };
 };
+

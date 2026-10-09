@@ -63,10 +63,10 @@ export async function getClientesData(): Promise<{ data?: ClienteStats[], error?
       // Debt and sales status
       if (p.estado === 'pagado') {
         stat.paidSales += p.total;
-      } else if (p.estado === 'pedido_entregado' || p.estado === 'pago_en_revision') {
+      } else if (p.estado === 'entregado' || p.estado === 'en_revision') {
         stat.pendingSales += p.total;
         stat.hasDebt = true;
-      } else if (p.estado === 'por_procesar' || p.estado === 'registrado') {
+      } else if (p.estado === 'en_proceso' || p.estado === 'registrado') {
         // usually not counted as debt until delivered, but we track pendingSales if you want
       }
 
@@ -190,7 +190,7 @@ export async function getClienteDetail(id: string): Promise<{ data?: any, error?
       totalSpent += p.total;
       if (p.estado === 'pagado') {
         paidSales += p.total;
-      } else if (p.estado === 'pedido_entregado' || p.estado === 'pago_en_revision') {
+      } else if (p.estado === 'entregado' || p.estado === 'en_revision') {
         pendingSales += p.total;
       }
 

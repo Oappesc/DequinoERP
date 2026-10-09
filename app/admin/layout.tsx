@@ -3,9 +3,9 @@ import Sidebar from '@/components/admin/Sidebar';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex h-screen overflow-hidden bg-dequino-neutral font-lato">
+    <div className="flex flex-col lg:flex-row h-screen overflow-hidden bg-dequino-neutral font-lato">
       <Sidebar />
-      <main className="flex-1 h-screen overflow-y-auto bg-dequino-neutral">
+      <main className="flex-1 overflow-y-auto bg-dequino-neutral min-w-0">
         {children}
       </main>
     </div>

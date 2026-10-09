@@ -49,7 +49,6 @@ export default function AdminPage() {
 
   // Modal State
   const [selectedPedido, setSelectedPedido] = useState<any | null>(null);
-  const [isCrearModalOpen, setIsCrearModalOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [customerEdit, setCustomerEdit] = useState({ razon_social: '', rif_cedula: '', direccion: '', telefono: '', email: '' });
   const [itemsEdit, setItemsEdit] = useState<any[]>([]);
@@ -251,10 +250,7 @@ export default function AdminPage() {
   };
   const searchResults = productSearch.length > 0 ? products.filter(p => formatProductName(p).toLowerCase().includes(productSearch.toLowerCase()) || p.codigo.toLowerCase().includes(productSearch.toLowerCase())).slice(0, 5) : [];
 
-  
-  const isReadOnly = ['entregado', 'en_revision', 'pagado'].includes(selectedPedido?.estado || '');
   const [downloading, setDownloading] = useState(false);
-
   const handleDownloadExcel = async () => {
     if (!selectedPedido) return;
     setDownloading(true);
@@ -377,18 +373,12 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-dequino-neutral p-4 md:p-6 font-sans font-lato">
       <div className="mx-auto max-w-7xl space-y-6">
-        <header className="bg-dequino-secondary text-white rounded-3xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <header className="bg-dequino-secondary text-white rounded-3xl p-6 shadow-sm flex flex-col justify-center mb-6">
           <div>
             <p className="text-xs font-semibold tracking-widest text-[#B38E5D] uppercase mb-1">ADMINISTRACIÓN</p>
             <h1 className="text-2xl font-extrabold text-white leading-tight">Dashboard de ventas</h1>
           </div>
-          
-            <div className="flex items-center gap-4 mt-4 md:mt-0">
-              <button onClick={() => setIsCrearModalOpen(true)} className="bg-dequino-primary hover:bg-[#6C8264] text-white font-medium py-2.5 px-5 rounded-2xl flex items-center gap-2 shadow-sm text-xs transition-all">
-                + Crear Pedido
-              </button>
-              <CurrencySwitcher isAdmin={true} />
-            </div>
+          <CurrencySwitcher isAdmin={true} />
         </header>
 
         <section className="grid gap-4 md:grid-cols-3 mb-6">
@@ -579,16 +569,9 @@ export default function AdminPage() {
                 <div>
                   <p className="text-xs font-bold uppercase tracking-widest text-[#B38E5D]">Detalle del Pedido</p>
                   <h2 className="text-2xl font-black mt-1 text-dequino-secondary">{selectedPedido.correlativo}</h2>
-                  
-                    <p className="text-sm text-slate-500 mt-1">
-                      {new Date(selectedPedido.created_at).toLocaleString('es-VE')} • Vendedor: <span className="font-semibold">{selectedPedido.vendedor?.nombre ?? 'Desconocido'}</span>
-                    </p>
-                    {isReadOnly && (
-                      <div className="bg-slate-100 text-slate-600 font-bold text-[11px] px-3 py-1 rounded-full w-fit mt-2 border border-slate-200">
-                        Pedido en solo lectura (estado: {selectedPedido.estado.replace(/_/g, ' ')})
-                      </div>
-                    )}
-
+                  <p className="text-sm text-slate-500 mt-1">
+                    {new Date(selectedPedido.created_at).toLocaleString('es-VE')} • Vendedor: <span className="font-semibold">{selectedPedido.vendedor?.nombre ?? 'Desconocido'}</span>
+                  </p>
                 </div>
                 <button onClick={() => setSelectedPedido(null)} className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
                   ✕
@@ -636,10 +619,7 @@ export default function AdminPage() {
                   {/* Items Section */}
                   <div>
                     <h3 className="font-semibold text-slate-800 mb-3">Ítems del Pedido</h3>
-                      
-                      {!isReadOnly && (
-                        <div className="relative mb-4">
-
+                      <div className="relative mb-4">
                         <input
                           value={productSearch}
                           onChange={(e) => setProductSearch(e.target.value)}
@@ -657,7 +637,6 @@ export default function AdminPage() {
                           </div>
                         )}
                       </div>
-                      )}
                     <div className="border border-slate-200 rounded-xl overflow-hidden">
                       <table className="min-w-full text-sm">
                         <thead className="bg-slate-50 text-slate-600 border-b">
@@ -676,17 +655,16 @@ export default function AdminPage() {
                               <td className="px-4 py-3">{formatCurrency(item.precio_unitario || item.producto?.precio || 0)}</td>
                               <td className="px-4 py-3">
                                 <input 
-                                    type="number" 
-                                    min="1" 
-                                    value={item.cantidad} 
-                                    disabled={isReadOnly}
-                                    className={`w-16 border rounded px-2 py-1 text-center outline-none focus:border-sky-500 ${isReadOnly ? 'bg-slate-50 text-slate-600 border-none' : ''}`}
-                                    onChange={e => {
-                                      const val = Math.max(1, Number(e.target.value) || 1);
-                                      const newItems = [...itemsEdit];
-                                      newItems[index].cantidad = val;
-                                      setItemsEdit(newItems);
-                                    }} 
+                                  type="number" 
+                                  min="1" 
+                                  value={item.cantidad} 
+                                  onChange={e => {
+                                    const val = Math.max(1, Number(e.target.value) || 1);
+                                    const newItems = [...itemsEdit];
+                                    newItems[index].cantidad = val;
+                                    setItemsEdit(newItems);
+                                  }}
+                                  className="w-16 border rounded px-2 py-1 text-center outline-none focus:border-sky-500" 
                                 />
                               </td>
                               <td className="px-4 py-3 text-right font-semibold">
@@ -715,13 +693,12 @@ export default function AdminPage() {
                       <div className="flex items-center gap-3">
                         <div className="relative">
                           <input 
-                              type="number" 
-                              min="0" 
-                              max="100"
-                              value={commissionPct} 
-                              disabled={isReadOnly}
-                              className={`w-20 border rounded-lg px-3 py-2 text-right outline-none focus:border-sky-500 font-semibold ${isReadOnly ? 'bg-slate-50 text-slate-600 border-none' : ''}`}
-                              onChange={e => setCommissionPct(Math.max(0, Number(e.target.value) || 0))} 
+                            type="number" 
+                            min="0" 
+                            max="100"
+                            value={commissionPct} 
+                            onChange={e => setCommissionPct(Math.max(0, Number(e.target.value) || 0))}
+                            className="w-20 border rounded-lg px-3 py-2 text-right outline-none focus:border-sky-500 font-semibold" 
                           />
                           <span className="absolute right-3 top-2 text-slate-400 font-bold">%</span>
                         </div>

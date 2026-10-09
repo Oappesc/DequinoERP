@@ -141,7 +141,7 @@ export async function getSellerOrders(input: { month: string; status?: PedidoEst
   const supabase = createServiceRoleSupabaseClient();
   const { data: order } = await supabase.from('pedidos').select('id, correlativo, total, cliente:clientes(razon_social)').eq('id', orderId).eq('vendedor_id', sellerId).maybeSingle();
   if (!order) return { error: 'El pedido no está disponible para recibir comprobante.' };
-  const { error: updateError } = await supabase.from('pedidos').update({ comprobante_pago_url: comprobanteUrl, estado: 'pago_en_revision', fecha_pago_en_revision: new Date().toISOString() }).eq('id', orderId);
+  const { error: updateError } = await supabase.from('pedidos').update({ comprobante_pago_url: comprobanteUrl, estado: 'en_revision', fecha_pago_en_revision: new Date().toISOString() }).eq('id', orderId);
   if (updateError) return { error: updateError.message };
   return { data: { url: comprobanteUrl } };
 }
@@ -307,7 +307,24 @@ export async function requireAdmin() {
 export async function updateOrderStatus(orderId: string, estado: string): Promise<ActionResult<true>> {
   try {
     const supabase = await requireAdmin();
-    const { error } = await supabase.from('pedidos').update({ estado: estado as PedidoEstado }).eq('id', orderId);
+    let updates: any = { estado: estado as PedidoEstado };
+
+    if (estado === 'entregado') {
+      const { data: order } = await supabase.from('pedidos').select('total').eq('id', orderId).single();
+      if (order) {
+        const total = order.total || 0;
+        let dias = 7;
+        if (total >= 500) dias = 30;
+        else if (total >= 100) dias = 15;
+        
+        const fechaLimite = new Date();
+        fechaLimite.setDate(fechaLimite.getDate() + dias);
+        updates.dias_credito = dias;
+        updates.fecha_limite_cobro = fechaLimite.toISOString();
+      }
+    }
+
+    const { error } = await supabase.from('pedidos').update(updates).eq('id', orderId);
     if (error) return { error: error.message };
     revalidatePath('/admin');
     return { data: true };
@@ -362,3 +379,106 @@ export async function downloadAdminOrderExcel(orderId: string): Promise<ActionRe
 export async function obtenerTasaBCVDB(): Promise<number | null> {
   return null;
 }
+
+
+export async function adminCrearPedido(data: FormData | any): Promise<ActionResult<{ orderId: string }>> {
+  const isFormData = typeof data?.get === 'function';
+  const getVal = (key: string) => isFormData ? data.get(key) : data[key];
+  
+  const clientMode = String((getVal('clientMode') ?? getVal('clienteMode')) ?? '');
+  const supabase = createServiceRoleSupabaseClient();
+  let rifUrl: string | null = null;
+  
+  const rifImage = getVal('rifImage');
+  if (clientMode === 'nuevo' && typeof rifImage === 'object' && rifImage !== null && 'name' in rifImage) {
+    const file = rifImage as File;
+    const path = `rifs/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '') || 'rif'}`;
+    const res = await supabase.storage.from('comprobantes_pago').upload(path, file, { contentType: file.type, upsert: false });
+    if (!res.error) {
+      const { data: { publicUrl } } = supabase.storage.from('comprobantes_pago').getPublicUrl(path);
+      rifUrl = publicUrl;
+    } else {
+      return { error: 'Error al subir la imagen del RIF.' };
+    }
+  }
+
+  let itemsParam = getVal('items');
+  let itemsParsed = [];
+  if (typeof itemsParam === 'string') {
+    itemsParsed = JSON.parse(itemsParam);
+  } else if (Array.isArray(itemsParam)) {
+    itemsParsed = itemsParsed = itemsParam;
+  }
+
+  const input = {
+      clienteId: String(getVal('clienteId') ?? '') || undefined,
+      nuevoCliente: clientMode === 'nuevo' ? { rifUrl: rifUrl || String(getVal('rifUrl') ?? '') } : undefined,
+      tipoDocumento: String((getVal('tipoDocumento') ?? getVal('documentType')) ?? ''),
+      items: itemsParsed as Array<{ productoId: string; cantidad: number }>,
+  };
+
+  const supabaseAdmin = await requireAdmin();
+    const sellerId = String(getVal('vendedorId') ?? '');
+    if (!sellerId) return { error: 'Debes seleccionar un vendedor.' };
+  if ((!input.clienteId && !input.nuevoCliente) || input.items.length === 0) return { error: 'Selecciona un cliente y al menos un producto.' };
+
+  let clienteId = input.clienteId;
+  let customer: any;
+
+  if (input.nuevoCliente) {
+      const newCustomer = input.nuevoCliente;
+      if (!newCustomer.rifUrl) return { error: 'Falta la URL de la imagen del RIF.' };
+      rifUrl = newCustomer.rifUrl;
+    const { data: newCustomerData, error } = await supabase.from('clientes').insert({
+      razon_social: 'NUEVO CLIENTE - PENDIENTE RIF',
+      rif_cedula: `PENDIENTE-${Date.now()}`,
+      telefono: null,
+    }).select('*').single();
+    if (error || !newCustomerData) return { error: error?.message ?? 'No se pudo registrar el cliente.' };
+    customer = newCustomerData;
+    clienteId = newCustomerData.id;
+  } else {
+    const { data: existingCustomerData, error } = await supabase.from('clientes').select('*').eq('id', clienteId as string).single();
+    if (error || !existingCustomerData) return { error: 'El cliente seleccionado ya no está disponible.' };
+    customer = existingCustomerData;
+  }
+
+  const { data: seller, error: sellerError } = await supabase.from('vendedores').select('*').eq('id', sellerId).single();
+  if (sellerError || !seller) return { error: 'No se encontró la información del vendedor.' };
+  const productIds = input.items.map((item) => item.productoId);
+  const { data: products, error: productsError } = await supabase.from('productos').select('*').in('id', productIds).eq('activo', true);
+  
+  const details = input.items.flatMap((item) => {
+    const product = products?.find((candidate) => candidate.id === item.productoId);
+    const quantity = Math.max(1, Math.floor(item.cantidad));
+    if (!product) return [];
+    return [{ product, quantity, subtotal: product.precio * quantity }];
+  });
+  const subtotal = details.reduce((sum, detail) => sum + detail.subtotal, 0);
+  const iva = input.tipoDocumento === 'nota_entrega' ? 0 : subtotal * 0.16;
+  const total = subtotal + iva;
+  const correlativo = `PED-${Date.now().toString().slice(-8)}`;
+  const observacion = rifUrl ? `RIF del cliente nuevo: ${rifUrl}` : null;
+  const { data: order, error: orderError } = await supabase.from('pedidos').insert({
+    correlativo,
+    vendedor_id: sellerId,
+    cliente_id: clienteId as string,
+    tipo_documento: input.tipoDocumento as DocumentoTipo,
+    total,
+    estado: 'registrado',
+    observacion,
+    porcentaje_comision: 10,
+  }).select('id').single();
+  if (orderError || !order) return { error: orderError?.message ?? 'No se pudo crear el pedido.' };
+
+  const { error: detailsError } = await supabase.from('pedido_detalles').insert(details.map(({ product, quantity, subtotal: itemSubtotal }) => ({
+    pedido_id: order.id,
+    producto_id: product.id,
+    cantidad: quantity,
+    precio_unitario: product.precio,
+    subtotal: itemSubtotal,
+  })));
+  
+  return { data: { orderId: order.id } };
+}
+

@@ -124,7 +124,7 @@ export default function VentasTab({ data, formatCurrency }: { data: any, formatC
             </thead>
             <tbody className="divide-y divide-slate-100/70">
               {(data.topClients || []).map((c: any, i: number) => (
-                <tr key={c.rif + i} className="text-sm hover:bg-[#FAF8F5] transition-colors border-b border-slate-100/70 py-3">
+                <tr key={c.id ?? c.rif ?? `top-client-${i}`} className="text-sm hover:bg-[#FAF8F5] transition-colors border-b border-slate-100/70 py-3">
                   <td className="py-3 pr-4">
                     <p className="font-bold text-dequino-secondary text-sm">{c.name}</p>
                     <p className="text-xs text-slate-400 mt-0.5">{c.rif}</p>
@@ -208,7 +208,7 @@ export default function VentasTab({ data, formatCurrency }: { data: any, formatC
             </thead>
             <tbody className="divide-y divide-slate-100/70">
               {(data.topVendors || []).map((v: any, i: number) => (
-                <tr key={v.name + i} className="text-sm hover:bg-[#FAF8F5] transition-colors border-b border-slate-100/70 py-3">
+                <tr key={v.id ?? v.name ?? `vendedor-${i}`} className="text-sm hover:bg-[#FAF8F5] transition-colors border-b border-slate-100/70 py-3">
                   <td className="py-3 pr-4 font-bold text-dequino-secondary">
                     <span className="inline-block w-5 h-5 rounded-lg bg-[#EEF3EC] text-dequino-secondary text-center text-xs leading-5 font-bold mr-2">{i + 1}</span>
                     {v.name}
