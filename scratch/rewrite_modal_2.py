@@ -1,4 +1,6 @@
-'use client';
+import os
+
+content = """'use client';
 
 import { formatProductName } from '@/lib/productUtils';
 import { useCurrency } from '@/components/CurrencyProvider';
@@ -320,3 +322,9 @@ export default function CrearPedidoModal({ isOpen, onClose, onCreated, sellers: 
     </div>
   );
 }
+"""
+
+with open('components/admin/CrearPedidoModal.tsx', 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print("CrearPedidoModal.tsx ha sido actualizado con validaciones y data loaders.")
