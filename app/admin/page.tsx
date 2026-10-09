@@ -8,6 +8,7 @@ import { PedidoBadge } from '@/components/PedidoBadge';
 import { createBrowserClient } from '@supabase/ssr';
 import { useCurrency } from '@/components/CurrencyProvider';
 import { CurrencySwitcher } from '@/components/CurrencySwitcher';
+import CrearPedidoModal from '@/components/admin/CrearPedidoModal';
 import Image from 'next/image';
 
 type OrderStatus = PedidoEstado;
@@ -44,6 +45,7 @@ export default function AdminPage() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<any[]>([]);
+  const [sellers, setSellers] = useState<any[]>([]);
   const [productSearch, setProductSearch] = useState('');
   const [viewedRegistrados, setViewedRegistrados] = useState<Set<string>>(new Set());
 
@@ -789,7 +791,19 @@ export default function AdminPage() {
           </div>
         </div>
       )}
-    </div>
+    
+      {isCrearModalOpen && (
+        <CrearPedidoModal 
+          isOpen={isCrearModalOpen} 
+          onClose={() => setIsCrearModalOpen(false)} 
+          sellers={sellers} 
+          onCreated={() => {
+            setIsCrearModalOpen(false);
+            window.location.reload();
+          }}
+        />
+      )}
+</div>
   );
 }
 

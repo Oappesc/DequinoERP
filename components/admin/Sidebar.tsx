@@ -1,4 +1,6 @@
 'use client';
+import { useRouter } from 'next/navigation';
+import { createBrowserClient } from '@supabase/ssr';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -25,6 +27,17 @@ const menuItems = [
 ];
 
 export default function Sidebar() {
+  const router = useRouter();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/login/admin');
+  };
+
   const [isOpen, setIsOpen] = useState(false); // Mobile drawer
   const [isCollapsed, setIsCollapsed] = useState(false); // Desktop toggle
   const pathname = usePathname();
@@ -102,7 +115,7 @@ export default function Sidebar() {
                 key={item.name} 
                 href={item.href as any}
                 onClick={() => setIsOpen(false)}
-                title={isCollapsed ? item.name : undefined}
+                title={isCollapsed ? 'Cerrar Sesión' : undefined}
                 className={`flex items-center gap-3 px-3 py-3 rounded-2xl font-medium transition-all duration-150
                   ${isActive 
                     ? 'bg-dequino-primary text-white shadow-sm shadow-dequino-primary/20' 
@@ -123,9 +136,7 @@ export default function Sidebar() {
         </nav>
 
         <div className="p-3 border-t border-white/10">
-          <button 
-            title={isCollapsed ? 'Cerrar Sesión' : undefined}
-            className={`flex items-center gap-3 px-3 py-3 w-full rounded-2xl font-medium text-white/60 hover:text-white hover:bg-white/10 transition-colors group ${isCollapsed ? 'lg:justify-center' : ''}`}
+          <button onClick={handleLogout} title={isCollapsed ? 'Cerrar Sesión' : undefined} className={`flex items-center gap-3 px-3 py-3 w-full rounded-2xl font-medium text-white/60 hover:text-white hover:bg-white/10 transition-colors group ${isCollapsed ? 'lg:justify-center' : ''}`}
           >
             <div className="p-2 shrink-0 rounded-xl bg-white/5 group-hover:bg-rose-500/20 group-hover:text-rose-300 transition-colors">
               <LogOut size={18} />
