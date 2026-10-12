@@ -372,8 +372,28 @@ export async function updateAdminOrderData(orderId: string, payload: any): Promi
   }
 }
 
-export async function downloadAdminOrderExcel(orderId: string): Promise<ActionResult<{ url: string } | { buffer: string }>> {
-  return { error: 'No implementado' };
+export async function downloadAdminOrderExcel(orderId: string): Promise<ActionResult<string>> {
+  try {
+    const supabase = await requireAdmin();
+    const { data: order, error } = await (supabase
+      .from('pedidos')
+      .select('*, cliente:clientes(*), vendedor:vendedores(*), detalles:pedido_detalles(*, producto:productos(*))')
+      .eq('id', orderId)
+      .single() as any);
+
+    if (error || !order) return { error: 'No se encontró el pedido.' };
+
+    const ExcelJS = (await import('exceljs')).default;
+    const { buildNotaEntregaWorkbook } = await import('./notaEntregaExcel');
+
+    const workbook = buildNotaEntregaWorkbook(ExcelJS, order);
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+    return { data: base64 };
+  } catch (err: any) {
+    return { error: err.message || 'Error al generar Excel' };
+  }
 }
 
 export async function obtenerTasaBCVDB(): Promise<number | null> {

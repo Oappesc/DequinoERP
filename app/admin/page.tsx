@@ -264,10 +264,14 @@ export default function AdminPage() {
     if (res.data) {
       const link = document.createElement('a');
       link.href = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${res.data}`;
-      link.download = `${selectedPedido.correlativo}.xlsx`;
+      const clienteSanitized = (selectedPedido.cliente?.razon_social || 'Cliente').replace(/[^a-zA-Z0-9_\-]/g, '_').substring(0, 30);
+      const correlativoSanitized = (selectedPedido.correlativo || 'Pedido').replace(/[^a-zA-Z0-9_\-]/g, '_');
+      link.download = `Nota_Entrega_${correlativoSanitized}_${clienteSanitized}.xlsx`;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     } else {
-      alert(res.error);
+      alert(res.error || 'Error al descargar Excel');
     }
     setDownloading(false);
   };
@@ -277,97 +281,245 @@ export default function AdminPage() {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
     const isFactura = selectedPedido.tipo_documento === 'factura';
+    const dateObj = new Date(selectedPedido.created_at || Date.now());
+    const fechaStr = dateObj.toLocaleDateString('es-VE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+
+    const totalUnidades = itemsEdit.reduce((acc, i) => acc + (Number(i.cantidad) || 0), 0);
+    const totalCajas = itemsEdit.reduce((acc, i) => {
+      const uds = Number(i.producto?.unidades_por_caja || i.producto?.unidades_por_bulto || 1) || 1;
+      return acc + ((Number(i.cantidad) || 0) / uds);
+    }, 0);
+
+    const minPrintRows = 31; // Fila 16 a 46 = 31 filas
+    const emptyRowsCount = Math.max(0, minPrintRows - itemsEdit.length);
+
     const html = `
+      <!DOCTYPE html>
       <html>
       <head>
-        <title>Imprimir - ${selectedPedido.correlativo}</title>
+        <meta charset="utf-8" />
+        <title>Nota de Entrega - ${selectedPedido.correlativo}</title>
         <style>
-          @media print {
-            @page { margin: 15mm; }
-            body { -webkit-print-color-adjust: exact; }
+          @page {
+            size: letter portrait;
+            margin: 37mm 8mm 10mm 6mm;
           }
-          body { 
-            font-family: Arial, sans-serif; 
-            padding: 0; 
+          * {
+            box-sizing: border-box;
+          }
+          body {
+            font-family: Arial, "Arial Narrow", Helvetica, sans-serif;
             margin: 0;
-            font-size: 13px; 
-            line-height: 1.4;
+            padding: 0;
+            font-size: 11px;
             color: #000;
+            line-height: 1.25;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
           }
-          .header { text-align: left; margin-bottom: 20px; }
-          .header h2 { font-size: 16px; margin: 0 0 10px 0; font-weight: bold; }
-          .header p { margin: 2px 0; }
-          table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-          th, td { 
-            border: 1px solid #000; 
-            padding: 6px 4px; 
-            text-align: center; 
+          .header-grid {
+            width: 100%;
+            margin-bottom: 8px;
           }
-          th { font-weight: bold; background-color: #fff; }
-          td.desc { text-align: left; }
-          .text-right { text-align: right; }
-          .text-left { text-align: left; }
-          .footer-section { width: 100%; display: flex; justify-content: flex-end; margin-top: 10px; }
-          .totals-table { width: 350px; border-collapse: collapse; }
-          .totals-table th, .totals-table td { border: none; padding: 4px 8px; text-align: right; }
-          .totals-table th { width: 60%; }
+          .header-grid table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          .header-grid td {
+            padding: 1.5px 2px;
+          }
+          .title-correlativo {
+            font-size: 18px;
+            font-weight: bold;
+          }
+          .text-right {
+            text-align: right;
+          }
+          .text-left {
+            text-align: left;
+          }
+          .text-center {
+            text-align: center;
+          }
+          table.items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 4px;
+            margin-bottom: 8px;
+          }
+          table.items-table th, table.items-table td {
+            border: none;
+            padding: 2.5px 3px;
+            font-size: 9.5px;
+          }
+          table.items-table th {
+            font-weight: bold;
+            font-size: 10px;
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
+            text-align: center;
+            height: 22px;
+          }
+          .totals-container {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 4px;
+          }
+          .totals-left {
+            width: 48%;
+          }
+          .totals-left table, .totals-right table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          .totals-left td, .totals-right td {
+            padding: 2px 3px;
+            font-size: 10.5px;
+          }
+          .totals-left tr:first-child td {
+            border-top: 1px solid #000;
+          }
+          .totals-right {
+            width: 48%;
+          }
+          .border-top-thin {
+            border-top: 1px solid #000;
+          }
+          .border-bottom-double {
+            border-bottom: 2px double #000;
+          }
+          .font-bold {
+            font-weight: bold;
+          }
         </style>
       </head>
       <body>
-        <div class="header">
-          <h2>${isFactura ? 'FACTURA' : 'NOTA DE ENTREGA'}: ${selectedPedido.correlativo}</h2>
-          <p>Guarenas: ${new Date(selectedPedido.created_at).toLocaleDateString('es-VE')}</p>
-          <p>Cliente: ${selectedPedido.cliente?.razon_social || 'N/A'} | R.I.F: ${selectedPedido.cliente?.rif_cedula || 'N/A'}</p>
-          <p>Dirección: ${selectedPedido.cliente?.direccion || 'N/A'} | Teléfono: ${selectedPedido.cliente?.telefono || 'N/A'}</p>
-          <br/>
-          <p>Vendedor: ${selectedPedido.vendedor?.nombre || 'N/A'}</p>
+        <div class="header-grid">
+          <table>
+            <tr>
+              <td class="text-right font-bold" style="width: 70%; font-size: 16px;">NOTA DE ENTREGA:</td>
+              <td class="text-center font-bold" style="width: 30%; font-size: 16px;">${selectedPedido.correlativo || ''}</td>
+            </tr>
+            <tr>
+              <td class="text-right font-bold" style="font-size: 12px;">Guarenas:</td>
+              <td class="text-center" style="font-size: 12px;">${fechaStr}</td>
+            </tr>
+            <tr>
+              <td class="text-left font-bold" style="font-size: 11px;">
+                Cliente: <span style="font-weight: bold;">${selectedPedido.cliente?.razon_social || ''}</span>
+              </td>
+              <td class="text-right font-bold" style="font-size: 12px;">
+                R.I.F: <span style="font-weight: bold; margin-left: 8px;">${selectedPedido.cliente?.rif_cedula || ''}</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-left font-bold" style="font-size: 10px; vertical-align: top;">
+                Dirección: <span style="font-weight: bold;">${selectedPedido.cliente?.direccion || ''}</span>
+              </td>
+              <td class="text-right font-bold" style="font-size: 12px; vertical-align: top;">
+                Teléfono: <span style="font-weight: normal; margin-left: 8px;">${selectedPedido.cliente?.telefono || ''}</span>
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td class="text-right font-bold" style="font-size: 11px;">
+                Vendedor: <span style="font-weight: normal; margin-left: 8px;">${selectedPedido.vendedor?.nombre || ''}</span>
+              </td>
+            </tr>
+          </table>
         </div>
-        
-        <table>
+
+        <table class="items-table">
           <thead>
             <tr>
-              <th style="width: 15%">CODIGO</th>
-              <th style="width: 40%">DESCRIPCION</th>
-              <th style="width: 10%">CANTIDAD</th>
-              <th style="width: 8%">UND</th>
-              <th style="width: 10%">CAJAS</th>
-              <th style="width: 15%">PRECIO UNITARIO</th>
-              <th style="width: 15%">TOTAL $</th>
+              <th style="width: 10%; text-align: center;">CODIGO</th>
+              <th style="width: 45%; text-align: left;">DESCRIPCION</th>
+              <th style="width: 8%; text-align: center;">CANTIDAD</th>
+              <th style="width: 7%; text-align: center;">CAJAS</th>
+              <th style="width: 15%; text-align: right;">PRECIO UNITARIO</th>
+              <th style="width: 15%; text-align: right;">TOTAL $</th>
             </tr>
           </thead>
           <tbody>
             ${itemsEdit.map(item => {
-              const qty = Number(item.cantidad);
-              const udsPorBulto = item.producto?.unidades_por_bulto || 1;
-              const cajas = qty / udsPorBulto;
-              const precioU = Number(item.precio_unitario || item.producto?.precio || 0);
+              const qty = Number(item.cantidad) || 0;
+              const udsPorCaja = Number(item.producto?.unidades_por_caja || item.producto?.unidades_por_bulto || 1) || 1;
+              const cajas = udsPorCaja > 0 ? (qty / udsPorCaja) : 0;
+              const precioU = Number(item.precio_unitario ?? item.producto?.precio ?? 0);
               const rowTotal = qty * precioU;
               return `
               <tr>
-                <td>${item.producto?.codigo || 'PT-'}</td>
-                <td class="desc">${item.producto?.descripcion || 'N/A'}</td>
-                <td>${qty}</td>
-                <td>UND</td>
-                <td>${cajas > 0 ? cajas.toFixed(2).replace(/.00$/, '') : 0}</td>
-                <td class="text-right">${formatCurrency(precioU)}</td>
-                <td class="text-right">${formatCurrency(rowTotal)}</td>
+                <td class="text-center">${item.producto?.codigo || 'PT-'}</td>
+                <td class="text-left">${formatProductName(item.producto)}</td>
+                <td class="text-center">${qty}</td>
+                <td class="text-center">${cajas > 0 ? (Number.isInteger(cajas) ? cajas : cajas.toFixed(2)) : '0'}</td>
+                <td class="text-right">$${precioU.toFixed(2)}</td>
+                <td class="text-right">$${rowTotal.toFixed(2)}</td>
               </tr>
               `;
             }).join('')}
+            ${Array.from({ length: emptyRowsCount }).map(() => `
+              <tr>
+                <td style="height: 15px;">&nbsp;</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            `).join('')}
           </tbody>
         </table>
-        
-        <div class="footer-section">
-          <table class="totals-table">
-            <tr><th>TOTAL DE UNIDADES:</th><td>${itemsEdit.reduce((acc, i) => acc + Number(i.cantidad), 0)}</td></tr>
-            <tr><th>TOTAL DE CAJAS:</th><td>${Number(itemsEdit.reduce((acc, i) => acc + (Number(i.cantidad) / (i.producto?.unidades_por_bulto || 1)), 0)).toFixed(2).replace(/.00$/, '')}</td></tr>
-            <tr><th>SUB-TOTAL:</th><td>${formatCurrency(calculatedSubtotal)}</td></tr>
-            <tr><th>${isFactura ? 'IVA (16%):' : 'IVA (0%):'}</th><td>${formatCurrency(calculatedIva)}</td></tr>
-            <tr><th>TOTAL GRAL:</th><td>${formatCurrency(calculatedTotal)}</td></tr>
-          </table>
+
+        <div class="totals-container">
+          <div class="totals-left">
+            <table>
+              <tr>
+                <td class="font-bold">TOTAL DE UNIDADES</td>
+                <td class="font-bold text-center">${totalUnidades}</td>
+              </tr>
+              <tr>
+                <td class="font-bold">TOTAL DE CAJAS</td>
+                <td class="font-bold text-center">${Number.isInteger(totalCajas) ? totalCajas : totalCajas.toFixed(2)}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="totals-right">
+            <table>
+              <tr>
+                <td class="font-bold text-right border-top-thin" style="width: 60%;">SUB-TOTAL</td>
+                <td class="font-bold text-right border-top-thin" style="width: 40%;">$${calculatedSubtotal.toFixed(2)}</td>
+              </tr>
+              ${isFactura ? `
+              <tr>
+                <td class="font-bold text-right">IVA (16%):</td>
+                <td class="font-bold text-right">$${calculatedIva.toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-right border-bottom-double" style="font-size: 11px;">TOTAL $</td>
+                <td class="font-bold text-right border-bottom-double" style="font-size: 11px;">$${calculatedTotal.toFixed(2)}</td>
+              </tr>
+              ` : `
+              <tr>
+                <td class="font-bold text-right border-bottom-double" style="font-size: 11px;">TOTAL $</td>
+                <td class="font-bold text-right border-bottom-double" style="font-size: 11px;">$${calculatedSubtotal.toFixed(2)}</td>
+              </tr>
+              `}
+            </table>
+          </div>
         </div>
+
         <script>
-          window.onload = () => window.print();
+          window.onload = () => {
+            window.print();
+          };
         </script>
       </body>
       </html>
