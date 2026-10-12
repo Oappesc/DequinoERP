@@ -141,17 +141,31 @@ export async function bulkImportClientes(clientes: any[]): Promise<{ error?: str
   try {
     const supabase = await requireAdmin();
     
-    // Prepare payload
-    const payload = clientes.map(c => ({
-      razon_social: c.razon_social || c.nombre || 'Sin Nombre',
-      rif_cedula: c.rif_cedula || c.rif || 'S/N',
-      direccion: c.direccion || null,
-      telefono: c.telefono || null,
-      email: c.email || null,
+    // Prepare and sanitize payload
+    const rawPayload = clientes.map(c => ({
+      razon_social: (c.razon_social || c.nombre || '').trim(),
+      rif_cedula: (c.rif_cedula || c.rif || '').trim(),
+      direccion: c.direccion?.trim() || null,
+      telefono: c.telefono?.trim() || null,
+      email: c.email?.trim() || null,
       activo: true
-    }));
+    })).filter(c => c.razon_social !== '' && c.rif_cedula !== '');
 
-    const { error } = await supabase.from('clientes').insert(payload);
+    if (rawPayload.length === 0) {
+      return { error: 'No se encontraron clientes válidos para importar (Se requiere Nombre y RIF)' };
+    }
+
+    // Deduplicate by RIF to avoid PostgreSQL "ON CONFLICT DO UPDATE command cannot affect row a second time"
+    const uniqueMap = new Map<string, typeof rawPayload[0]>();
+    for (const item of rawPayload) {
+      uniqueMap.set(item.rif_cedula.toUpperCase(), item);
+    }
+    const payload = Array.from(uniqueMap.values());
+
+    const { error } = await supabase
+      .from('clientes')
+      .upsert(payload, { onConflict: 'rif_cedula' });
+      
     if (error) throw new Error(error.message);
 
     return { count: payload.length };
