@@ -11,6 +11,31 @@ interface Props {
   onSuccess: () => void;
 }
 
+// Función robusta para decodificar texto con soporte para UTF-8 y fallback a Windows-1252 / ANSI
+function decodeTextBuffer(buffer: ArrayBuffer): string {
+  let text = '';
+  try {
+    const decoder = new TextDecoder('utf-8', { fatal: true });
+    text = decoder.decode(buffer);
+  } catch {
+    const decoder = new TextDecoder('windows-1252');
+    text = decoder.decode(buffer);
+  }
+
+  // Si no saltó fatal pero se introdujo el carácter de reemplazo '\uFFFD', reintentar con windows-1252
+  if (text.includes('\uFFFD')) {
+    try {
+      const winDecoder = new TextDecoder('windows-1252');
+      const winText = winDecoder.decode(buffer);
+      if (!winText.includes('\uFFFD')) {
+        text = winText;
+      }
+    } catch {}
+  }
+
+  return text;
+}
+
 export default function ModalCargaMasivaInventario({ isOpen, onClose, onSuccess }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -33,54 +58,71 @@ export default function ModalCargaMasivaInventario({ isOpen, onClose, onSuccess 
     setLoading(true);
     setError(null);
 
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results) => {
-        try {
-          const rows = results.data as any[];
-          const productsToInsert = rows.map(row => ({
-            codigo: row.pt?.trim() || '',
-            nombre: row.nombre?.trim() || '',
-            descripcion: row.descripcion?.trim() || '',
-            tamano_valor: parseFloat(row.tamano_valor) || 0,
-            unidad_medida: row.tamano_unidad?.trim() || 'unidad',
-            precio: parseFloat(row.precio_cadena) || 0,
-            precio_mayorista: parseFloat(row.precio_distribuidor) || 0,
-            tipo: 'producto',
-            stock: 0,
-            bajo_pedido: true,
-            activo: true
-          }));
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const text = decodeTextBuffer(arrayBuffer);
 
-          if (productsToInsert.length === 0) {
-            throw new Error("El archivo CSV está vacío o no tiene el formato correcto.");
+      Papa.parse(text, {
+        header: true,
+        skipEmptyLines: true,
+        transformHeader: (h) => h.trim().toLowerCase(),
+        complete: async (results) => {
+          try {
+            const rows = results.data as any[];
+            const productsToInsert = rows
+              .map(row => {
+                const pt = (row.pt || row.codigo || '').trim();
+                const nombre = (row.nombre || row.name || '').trim();
+                const descripcion = (row.descripcion || row.description || nombre || '').trim();
+
+                return {
+                  codigo: pt,
+                  nombre: nombre || descripcion,
+                  descripcion: descripcion || nombre,
+                  tamano_valor: parseFloat(row.tamano_valor || row.tamano || '0') || 0,
+                  unidad_medida: (row.tamano_unidad || row.unidad || 'unidad').trim(),
+                  precio: parseFloat(row.precio_cadena || row.precio || '0') || 0,
+                  precio_mayorista: parseFloat(row.precio_distribuidor || row.precio_mayorista || row.precio_cadena || '0') || 0,
+                  tipo: 'producto',
+                  stock: 0,
+                  bajo_pedido: true,
+                  activo: true
+                };
+              })
+              .filter(p => p.codigo !== '');
+
+            if (productsToInsert.length === 0) {
+              throw new Error("El archivo CSV está vacío o no contiene registros válidos (se requiere 'pt' o 'codigo').");
+            }
+
+            const res = await bulkInsertProducts(productsToInsert);
+            if (res.error) throw new Error(res.error);
+
+            setSuccessCount(productsToInsert.length);
+            setTimeout(() => {
+              onSuccess();
+              setFile(null);
+              setSuccessCount(null);
+            }, 2000);
+          } catch (err: any) {
+            setError(err.message || 'Error procesando el archivo CSV');
+          } finally {
+            setLoading(false);
           }
-
-          const res = await bulkInsertProducts(productsToInsert);
-          if (res.error) throw new Error(res.error);
-
-          setSuccessCount(productsToInsert.length);
-          setTimeout(() => {
-            onSuccess();
-            setFile(null);
-            setSuccessCount(null);
-          }, 2000);
-        } catch (err: any) {
-          setError(err.message || 'Error procesando el archivo CSV');
-        } finally {
+        },
+        error: (err: any) => {
+          setError('Error leyendo el CSV: ' + err.message);
           setLoading(false);
         }
-      },
-      error: (err: any) => {
-        setError('Error leyendo el CSV: ' + err.message);
-        setLoading(false);
-      }
-    });
+      });
+    } catch (err: any) {
+      setError('Error leyendo el archivo: ' + (err?.message || 'Error desconocido'));
+      setLoading(false);
+    }
   };
 
   const downloadTemplate = () => {
-    const csvContent = "pt,nombre,descripcion,tamano_valor,tamano_unidad,precio_cadena,precio_distribuidor\nPT-001,Champu Mascotas,Pelaje Blanco,240,mL,10.50,8.00";
+    const csvContent = "pt,nombre,descripcion,tamano_valor,tamano_unidad,precio_cadena,precio_distribuidor\nPT-001,Champú Mascotas,Pelaje Blanco,240,mL,10.50,8.00";
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);

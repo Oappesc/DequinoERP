@@ -104,6 +104,29 @@ export default function ModalCargaMasiva({
     return result;
   };
 
+  const decodeTextBuffer = (buffer: ArrayBuffer): string => {
+    let text = '';
+    try {
+      const decoder = new TextDecoder('utf-8', { fatal: true });
+      text = decoder.decode(buffer);
+    } catch {
+      const decoder = new TextDecoder('windows-1252');
+      text = decoder.decode(buffer);
+    }
+
+    if (text.includes('\uFFFD')) {
+      try {
+        const winDecoder = new TextDecoder('windows-1252');
+        const winText = winDecoder.decode(buffer);
+        if (!winText.includes('\uFFFD')) {
+          text = winText;
+        }
+      } catch {}
+    }
+
+    return text;
+  };
+
   const processFile = async (file: File) => {
     setError(null);
     setSuccess(null);
@@ -115,9 +138,8 @@ export default function ModalCargaMasiva({
       const items: ParsedCliente[] = [];
 
       if (file.name.toLowerCase().endsWith('.csv')) {
-        // Procesar CSV
-        const uint8 = new Uint8Array(arrayBuffer);
-        const text = new TextDecoder('utf-8').decode(uint8);
+        // Procesar CSV con decodificación robusta (UTF-8 y Windows-1252/ANSI)
+        const text = decodeTextBuffer(arrayBuffer);
         const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
 
         if (lines.length === 0) {

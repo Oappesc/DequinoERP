@@ -206,7 +206,29 @@ export async function deductInventory(orderId: string): Promise<void> {
 export async function bulkInsertProducts(products: any[]): Promise<ActionResult<boolean>> {
   try {
     const supabase = await requireAdmin();
-    const { error } = await supabase.from('productos').insert(products as any);
+
+    const sanitized = products
+      .map(p => ({
+        ...p,
+        codigo: (p.codigo || '').trim(),
+        nombre: (p.nombre || '').trim(),
+        descripcion: (p.descripcion || '').trim(),
+        unidad_medida: (p.unidad_medida || 'unidad').trim(),
+      }))
+      .filter(p => p.codigo !== '');
+
+    if (sanitized.length === 0) {
+      return { error: 'No se encontraron productos válidos para importar (se requiere código PT).' };
+    }
+
+    // Deduplicar por código PT para evitar colisiones en la misma sentencia
+    const uniqueMap = new Map<string, typeof sanitized[0]>();
+    for (const item of sanitized) {
+      uniqueMap.set(item.codigo.toUpperCase(), item);
+    }
+    const payload = Array.from(uniqueMap.values());
+
+    const { error } = await supabase.from('productos').upsert(payload as any, { onConflict: 'codigo' });
     if (error) throw error;
     revalidatePath('/admin');
     revalidatePath('/vendedor');
