@@ -62,6 +62,8 @@ export type Producto = {
   created_at: string;
   tipo?: 'producto' | 'servicio' | 'materia_prima';
   unidad_medida?: string;
+  tamano_unidad?: string;
+  presentacion?: string;
   unidades_por_caja?: number;
   precio_mayorista?: number;
   stock_minimo?: number;

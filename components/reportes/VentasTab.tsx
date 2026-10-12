@@ -125,17 +125,24 @@ export default function VentasTab({ data, formatCurrency }: { data: any, formatC
             <tbody className="divide-y divide-slate-100/70">
               {(data.topClients || []).map((c: any, i: number) => (
                 <tr key={c.id ?? c.rif ?? `top-client-${i}`} className="text-sm hover:bg-[#FAF8F5] transition-colors border-b border-slate-100/70 py-3">
-                  <td className="py-3 pr-4">
-                    <p className="font-bold text-dequino-secondary text-sm">{c.name}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{c.rif}</p>
+                  <td className="py-3 px-4">
+                    <p className="font-bold text-dequino-secondary text-sm">
+                      {c.nombre || c.name || c.cliente?.nombre || c.cliente?.razon_social || 'Cliente sin nombre'}
+                    </p>
+                    <p className="text-xs text-slate-400 font-mono mt-0.5">
+                      {c.rif || c.rif_cedula || c.cliente?.rif || c.cliente?.rif_cedula || 'Sin RIF'}
+                    </p>
                   </td>
                   <td className="py-3 px-4 text-center font-medium text-slate-700">{c.ordersCount}</td>
                   <td className="py-3 px-4 text-right text-emerald-700 font-semibold">{formatCurrency(c.paidSales)}</td>
                   <td className="py-3 px-4 text-right text-rose-600 font-semibold">{formatCurrency(c.pendingSales)}</td>
                   <td className="py-3 px-4 text-right font-extrabold text-slate-800">{formatCurrency(c.totalSold)}</td>
                   <td className="py-3 pl-4 text-left">
-                    <span className="inline-block px-2.5 py-1 bg-[#EEF3EC] text-dequino-secondary border border-dequino-tertiary/60 font-semibold text-[10px] rounded-lg truncate max-w-[150px]">
-                      {c.topProduct}
+                    <span 
+                      className="inline-block px-2.5 py-1 bg-[#EEF3EC] text-dequino-secondary border border-dequino-tertiary/60 font-semibold text-[11px] rounded-lg max-w-[260px] truncate"
+                      title={c.topProduct}
+                    >
+                      {c.topProduct || '-'}
                     </span>
                   </td>
                 </tr>
@@ -153,40 +160,64 @@ export default function VentasTab({ data, formatCurrency }: { data: any, formatC
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
           <h3 className="text-lg font-bold text-dequino-secondary mb-4">Top 5 - Productos más vendidos</h3>
           <div className="space-y-3">
-            {data.topProducts.map((p: any, i: number) => (
-              <div key={p.id} className="flex items-center justify-between p-3.5 bg-[#FAF8F5] rounded-2xl border border-slate-100/80">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#EEF3EC] text-dequino-secondary font-extrabold text-xs">
-                    {i + 1}
+            {data.topProducts.map((p: any, i: number) => {
+              const nombreProd = p.nombre || p.producto_nombre || p.name || 'Producto';
+              const tamanoStr = p.tamano_valor && p.tamano_unidad ? `${p.tamano_valor} ${p.tamano_unidad}` : (p.presentacion || '');
+              const descStr = p.descripcion && p.descripcion !== nombreProd ? p.descripcion : '';
+              const detalle = [descStr, tamanoStr].filter(Boolean).join(' • ');
+
+              return (
+                <div key={p.id} className="flex items-center justify-between p-3.5 bg-[#FAF8F5] rounded-2xl border border-slate-100/80">
+                  <div className="flex items-center gap-3 min-w-0 flex-1 mr-3">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#EEF3EC] text-dequino-secondary font-extrabold text-xs shrink-0">
+                      {i + 1}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-dequino-secondary text-sm truncate">{nombreProd}</p>
+                      {detalle && (
+                        <p className="text-xs text-slate-400 font-normal truncate mt-0.5">{detalle}</p>
+                      )}
+                    </div>
                   </div>
-                  <p className="font-bold text-slate-800 text-xs max-w-[200px] truncate">{p.name}</p>
+                  <div className="text-right shrink-0">
+                    <p className="font-extrabold text-slate-900 text-xs">{p.units} und</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">{formatCurrency(p.revenue)}</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-extrabold text-slate-900 text-xs">{p.units} und</p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">{formatCurrency(p.revenue)}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
           <h3 className="text-lg font-bold text-dequino-secondary mb-4">Bottom 5 - Productos menos vendidos</h3>
           <div className="space-y-3">
-            {data.bottomProducts.map((p: any) => (
-              <div key={p.id} className="flex items-center justify-between p-3.5 bg-[#FAF8F5] rounded-2xl border border-slate-100/80">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-amber-50 text-amber-800 font-extrabold text-xs">
-                    -
+            {data.bottomProducts.map((p: any) => {
+              const nombreProd = p.nombre || p.producto_nombre || p.name || 'Producto';
+              const tamanoStr = p.tamano_valor && p.tamano_unidad ? `${p.tamano_valor} ${p.tamano_unidad}` : (p.presentacion || '');
+              const descStr = p.descripcion && p.descripcion !== nombreProd ? p.descripcion : '';
+              const detalle = [descStr, tamanoStr].filter(Boolean).join(' • ');
+
+              return (
+                <div key={p.id} className="flex items-center justify-between p-3.5 bg-[#FAF8F5] rounded-2xl border border-slate-100/80">
+                  <div className="flex items-center gap-3 min-w-0 flex-1 mr-3">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-amber-50 text-amber-800 font-extrabold text-xs shrink-0">
+                      -
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-dequino-secondary text-sm truncate">{nombreProd}</p>
+                      {detalle && (
+                        <p className="text-xs text-slate-400 font-normal truncate mt-0.5">{detalle}</p>
+                      )}
+                    </div>
                   </div>
-                  <p className="font-bold text-slate-800 text-xs max-w-[200px] truncate">{p.name}</p>
+                  <div className="text-right shrink-0">
+                    <p className="font-extrabold text-slate-900 text-xs">{p.units} und</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">{formatCurrency(p.revenue)}</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-extrabold text-slate-900 text-xs">{p.units} und</p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">{formatCurrency(p.revenue)}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

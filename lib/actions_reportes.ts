@@ -57,6 +57,27 @@ function safeNum(val: any): number {
   return isNaN(n) ? 0 : n;
 }
 
+function formatProductEstrella(prod: any): string {
+  if (!prod) return '-';
+  const nombre = (prod.nombre || prod.descripcion || '').trim();
+  const desc = (prod.descripcion || '').trim();
+  const unidad = prod.tamano_unidad || prod.unidad_medida || '';
+  const tamano = prod.tamano_valor && unidad 
+    ? `${prod.tamano_valor}${unidad}`.trim() 
+    : (prod.presentacion || '').trim();
+
+  const parts: string[] = [];
+  if (nombre) parts.push(nombre);
+  if (desc && desc !== nombre && !nombre.toLowerCase().includes(desc.toLowerCase())) {
+    parts.push(desc);
+  }
+  if (tamano && !nombre.toLowerCase().includes(tamano.toLowerCase())) {
+    parts.push(tamano);
+  }
+
+  return parts.join(' ') || prod.codigo || '-';
+}
+
 export async function getReportData(from?: string, to?: string): Promise<{ data?: ReportData, error?: string }> {
   try {
     const supabase = await requireAdmin();
@@ -105,13 +126,17 @@ export async function getReportData(from?: string, to?: string): Promise<{ data?
     
     
     const clientStats: Record<string, {
+      id?: string;
       name: string;
+      nombre?: string;
       rif: string;
+      rif_cedula?: string;
+      cliente?: any;
       ordersCount: number;
       paidSales: number;
       pendingSales: number;
       totalSold: number;
-      productsMap: Record<string, { name: string, qty: number }>;
+      productsMap: Record<string, { name: string, qty: number, producto?: any }>;
     }> = {};
 
     const vendorStats: Record<string, {
@@ -137,14 +162,25 @@ export async function getReportData(from?: string, to?: string): Promise<{ data?
 
       totalRevenue += order.total;
       
-      
       // Client Stats
       const cliente = (order as any).cliente;
       if (cliente) {
         if (!clientStats[cliente.id]) {
+          const clientName = (cliente.razon_social || cliente.nombre || cliente.nombre_empresa || '').trim() || 'Cliente sin nombre';
+          const clientRif = (cliente.rif_cedula || cliente.rif || cliente.cedula || '').trim() || 'Sin RIF';
           clientStats[cliente.id] = {
-            name: cliente.nombre_empresa,
-            rif: cliente.rif,
+            id: cliente.id,
+            name: clientName,
+            nombre: clientName,
+            rif: clientRif,
+            rif_cedula: clientRif,
+            cliente: {
+              id: cliente.id,
+              nombre: clientName,
+              razon_social: clientName,
+              rif: clientRif,
+              rif_cedula: clientRif,
+            },
             ordersCount: 0,
             paidSales: 0,
             pendingSales: 0,
@@ -210,7 +246,11 @@ export async function getReportData(from?: string, to?: string): Promise<{ data?
 
         if (cliente) {
           if (!clientStats[cliente.id].productsMap[prod.id]) {
-            clientStats[cliente.id].productsMap[prod.id] = { name: prod.descripcion, qty: 0 };
+            clientStats[cliente.id].productsMap[prod.id] = { 
+              name: formatProductEstrella(prod), 
+              producto: prod,
+              qty: 0 
+            };
           }
           clientStats[cliente.id].productsMap[prod.id].qty += det.cantidad;
         }
@@ -244,14 +284,24 @@ export async function getReportData(from?: string, to?: string): Promise<{ data?
     const topProductsFormatted = sortedProducts.map(s => {
       const util = s.revenue - s.cost;
       const marg = s.revenue > 0 ? (util / s.revenue) * 100 : 0;
+      const prod = s.product;
+      const nombre = (prod.nombre || prod.descripcion || 'Producto').trim();
       return {
-        id: s.product.id,
-        name: s.product.descripcion,
+        id: prod.id,
+        codigo: prod.codigo,
+        nombre: nombre,
+        producto_nombre: nombre,
+        name: nombre,
+        descripcion: (prod.descripcion || '').trim(),
+        tamano_valor: prod.tamano_valor,
+        tamano_unidad: prod.tamano_unidad,
+        presentacion: prod.presentacion,
+        producto: prod,
         units: s.units,
         revenue: s.revenue,
         util: util,
         margin: marg,
-        stock: s.product.stock
+        stock: prod.stock
       };
     });
 
@@ -267,8 +317,12 @@ export async function getReportData(from?: string, to?: string): Promise<{ data?
         }
       });
       return {
+        id: c.id,
         name: c.name,
+        nombre: c.nombre || c.name,
         rif: c.rif,
+        rif_cedula: c.rif_cedula || c.rif,
+        cliente: c.cliente,
         ordersCount: c.ordersCount,
         paidSales: c.paidSales,
         pendingSales: c.pendingSales,
