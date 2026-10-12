@@ -410,9 +410,22 @@ export async function adminCrearPedido(data: FormData | any): Promise<ActionResu
     itemsParsed = itemsParsed = itemsParam;
   }
 
+  const nuevoRazonSocial = String(getVal('nuevoRazonSocial') ?? getVal('razonSocial') ?? '').trim();
+  const nuevoRifCedula = String(getVal('nuevoRifCedula') ?? getVal('rifCedula') ?? '').trim();
+  const nuevoTelefono = String(getVal('nuevoTelefono') ?? getVal('telefono') ?? '').trim() || null;
+  const nuevoEmail = String(getVal('nuevoEmail') ?? getVal('email') ?? '').trim() || null;
+  const nuevoDireccion = String(getVal('nuevoDireccion') ?? getVal('direccion') ?? '').trim() || null;
+
   const input = {
       clienteId: String(getVal('clienteId') ?? '') || undefined,
-      nuevoCliente: clientMode === 'nuevo' ? { rifUrl: rifUrl || String(getVal('rifUrl') ?? '') } : undefined,
+      nuevoCliente: clientMode === 'nuevo' ? { 
+        razonSocial: nuevoRazonSocial || 'NUEVO CLIENTE - PENDIENTE RIF',
+        rifCedula: nuevoRifCedula || `PENDIENTE-${Date.now()}`,
+        telefono: nuevoTelefono,
+        email: nuevoEmail,
+        direccion: nuevoDireccion,
+        rifUrl: rifUrl || String(getVal('rifUrl') ?? '') || null
+      } : undefined,
       tipoDocumento: String((getVal('tipoDocumento') ?? getVal('documentType')) ?? ''),
       items: itemsParsed as Array<{ productoId: string; cantidad: number }>,
   };
@@ -427,12 +440,13 @@ export async function adminCrearPedido(data: FormData | any): Promise<ActionResu
 
   if (input.nuevoCliente) {
       const newCustomer = input.nuevoCliente;
-      if (!newCustomer.rifUrl) return { error: 'Falta la URL de la imagen del RIF.' };
-      rifUrl = newCustomer.rifUrl;
     const { data: newCustomerData, error } = await supabase.from('clientes').insert({
-      razon_social: 'NUEVO CLIENTE - PENDIENTE RIF',
-      rif_cedula: `PENDIENTE-${Date.now()}`,
-      telefono: null,
+      razon_social: newCustomer.razonSocial,
+      rif_cedula: newCustomer.rifCedula,
+      telefono: newCustomer.telefono,
+      email: newCustomer.email,
+      direccion: newCustomer.direccion,
+      activo: true,
     }).select('*').single();
     if (error || !newCustomerData) return { error: error?.message ?? 'No se pudo registrar el cliente.' };
     customer = newCustomerData;
